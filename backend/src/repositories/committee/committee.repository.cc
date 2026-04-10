@@ -66,3 +66,7 @@ bool CommitteeRepository::deleteCommitteeMember(int id) {
     auto member = mapper.findByPrimaryKey(id);
     return mapper.deleteByPrimaryKey(id) > 0;
 }
+
+bool CommitteeRepository::isValidCommittee(const std::string& committee) {
+    return std::find(allowedCommittees.begin(), allowedCommittees.end(), committee) != allowedCommittees.end();
+}

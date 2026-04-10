@@ -175,9 +175,7 @@ void committee::updateCommitteeMember(const HttpRequestPtr& req, std::function<v
             member.profile_picture_object_key=newProfilePictureKey;
         }
         
-        if(!CommitteeRepository::updateCommitteeMember(member))
-            throw AppError("Failed to update committee member", k500InternalServerError);
-        
+        CommitteeRepository::updateCommitteeMember(memberId, member);
         callback(Response::success(k200OK,"Committee member updated successfully"));
     }
     catch(const AppError& e){

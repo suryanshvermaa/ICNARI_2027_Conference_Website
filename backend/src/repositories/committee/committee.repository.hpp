@@ -39,10 +39,9 @@ struct committeeMemberStruct{
 namespace CommitteeRepository {
     vector<committeeMemberStruct> getCommitteeMembers(const std::string& committee,int page,int limit);
     int createCommitteeMember(const committeeMemberStruct& member);
-    bool updateCommitteeMember(const committeeMemberStruct& member);
+    void updateCommitteeMember(int id,const committeeMemberStruct& member);
     bool deleteCommitteeMember(int id);
     committeeMemberStruct getCommitteeMemberById(int id);
-    bool isValidCommittee(const std::string& committee){
-        return std::find(allowedCommittees.begin(), allowedCommittees.end(), committee) != allowedCommittees.end();
-    };
+    bool isValidCommittee(const std::string& committee);
+        
 }
