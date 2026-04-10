@@ -18,6 +18,9 @@ tags:
   - name: Users
   - name: Notifications
   - name: Gallery
+  - name: Speaker
+  - name: Committee
+  - name: Contact
 
 paths:
   /health:
@@ -536,6 +539,451 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /api/v1/speaker:
+    get:
+      tags: [Speaker]
+      summary: List speakers
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            default: 10
+      responses:
+        '200':
+          description: Speakers retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpeakersListResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags: [Speaker]
+      summary: Create speaker (with profile picture)
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreateSpeakerRequest'
+      responses:
+        '200':
+          description: Speaker created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateSpeakerResponse'
+        '400':
+          description: Missing required fields / no file uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/speaker/{speakerId}:
+    get:
+      tags: [Speaker]
+      summary: Get speaker by id
+      parameters:
+        - in: path
+          name: speakerId
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Speaker retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetSpeakerResponse'
+        '404':
+          description: Speaker not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags: [Speaker]
+      summary: Update speaker (optional new profile picture)
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UpdateSpeakerRequest'
+      responses:
+        '200':
+          description: Speaker updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessNoData'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Speaker not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags: [Speaker]
+      summary: Delete speaker by id
+      parameters:
+        - in: path
+          name: speakerId
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Speaker deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessNoData'
+        '404':
+          description: Speaker not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/committee:
+    get:
+      tags: [Committee]
+      summary: List committee members
+      parameters:
+        - in: query
+          name: committee
+          required: true
+          description: Committee name
+          schema:
+            type: string
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            default: 10
+      responses:
+        '200':
+          description: Committee members retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommitteeMembersListResponse'
+        '400':
+          description: Invalid committee name / invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: An unexpected error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags: [Committee]
+      summary: Create committee member (with profile picture)
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreateCommitteeMemberRequest'
+      responses:
+        '201':
+          description: Committee member created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateCommitteeMemberResponse'
+        '400':
+          description: Missing required fields / invalid committee name / no file uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: An unexpected error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/committee/{memberId}:
+    get:
+      tags: [Committee]
+      summary: Get committee member by id
+      parameters:
+        - in: path
+          name: memberId
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Committee member retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetCommitteeMemberResponse'
+        '404':
+          description: Committee member not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: An unexpected error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags: [Committee]
+      summary: Update committee member (optional new profile picture)
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UpdateCommitteeMemberRequest'
+      responses:
+        '200':
+          description: Committee member updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessNoData'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Committee member not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: An unexpected error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags: [Committee]
+      summary: Delete committee member by id
+      parameters:
+        - in: path
+          name: memberId
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Committee member deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessNoData'
+        '404':
+          description: Committee member not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: An unexpected error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/contact:
+    get:
+      tags: [Contact]
+      summary: List contacts
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            default: 10
+      responses:
+        '200':
+          description: Contacts retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactsListResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags: [Contact]
+      summary: Create a contact message
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateContactRequest'
+      responses:
+        '201':
+          description: Contact created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateContactResponse'
+        '400':
+          description: Invalid JSON / missing required fields
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags: [Contact]
+      summary: Delete contact by id
+      parameters:
+        - in: query
+          name: contactId
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Contact deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessNoData'
+        '404':
+          description: Contact not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/contact/{contactId}:
+    get:
+      tags: [Contact]
+      summary: Get contact by id
+      parameters:
+        - in: path
+          name: contactId
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Contact retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetContactResponse'
+        '404':
+          description: Contact not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
 components:
   securitySchemes:
     bearerAuth:
@@ -603,7 +1051,6 @@ components:
 
     UserPublic:
       type: object
-      required: [id, name, email]
       properties:
         id:
           type: integer
@@ -612,6 +1059,9 @@ components:
         email:
           type: string
           format: email
+        profilePicture:
+          type: string
+          description: Signed URL for the user's profile picture
 
     GetUserResponse:
       type: object
@@ -817,3 +1267,283 @@ components:
           type: string
         data:
           $ref: '#/components/schemas/GalleryCreateData'
+
+    Speaker:
+      type: object
+      required: [id, name, specialization, description, priority]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        specialization:
+          type: string
+        description:
+          type: string
+        priority:
+          type: integer
+        profile_picture_url:
+          type: string
+          nullable: true
+
+    SpeakersListResponse:
+      type: object
+      required: [success, message, data]
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Speaker'
+
+    GetSpeakerResponse:
+      type: object
+      required: [success, message, data]
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/Speaker'
+
+    CreateSpeakerRequest:
+      type: object
+      required: [file, name]
+      properties:
+        file:
+          type: string
+          format: binary
+        name:
+          type: string
+        specialization:
+          type: string
+        description:
+          type: string
+        priority:
+          type: integer
+
+    UpdateSpeakerRequest:
+      type: object
+      properties:
+        file:
+          type: string
+          format: binary
+        name:
+          type: string
+        specialization:
+          type: string
+        description:
+          type: string
+        priority:
+          type: integer
+
+    CreateSpeakerData:
+      type: object
+      required: [id]
+      properties:
+        id:
+          type: integer
+
+    CreateSpeakerResponse:
+      type: object
+      required: [success, message, data]
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/CreateSpeakerData'
+
+    CommitteeMember:
+      type: object
+      required: [id, name, specialization, profile_picture_url, college, committee, priority, description]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        specialization:
+          type: string
+        profile_picture_url:
+          type: string
+        college:
+          type: string
+        committee:
+          type: string
+        priority:
+          type: integer
+        description:
+          type: string
+
+    CommitteeMembersListResponse:
+      type: object
+      required: [success, message, data]
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommitteeMember'
+
+    GetCommitteeMemberResponse:
+      type: object
+      required: [success, message, data]
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/CommitteeMember'
+
+    CreateCommitteeMemberRequest:
+      type: object
+      required: [file, name, college, committee]
+      properties:
+        file:
+          type: string
+          format: binary
+        name:
+          type: string
+        college:
+          type: string
+        committee:
+          type: string
+        specialization:
+          type: string
+        description:
+          type: string
+        priority:
+          type: integer
+
+    UpdateCommitteeMemberRequest:
+      type: object
+      properties:
+        file:
+          type: string
+          format: binary
+        name:
+          type: string
+        college:
+          type: string
+        committee:
+          type: string
+        specialization:
+          type: string
+        description:
+          type: string
+        priority:
+          type: integer
+
+    CreateCommitteeMemberData:
+      type: object
+      required: [id]
+      properties:
+        id:
+          type: integer
+
+    CreateCommitteeMemberResponse:
+      type: object
+      required: [success, message, data]
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/CreateCommitteeMemberData'
+
+    Contact:
+      type: object
+      required: [id, name, email, phone, subject, message, created_at]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        subject:
+          type: string
+        message:
+          type: string
+        created_at:
+          type: string
+
+    ContactsListResponse:
+      type: object
+      required: [success, message, data]
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Contact'
+
+    GetContactResponse:
+      type: object
+      required: [success, message, data]
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/Contact'
+
+    CreateContactRequest:
+      type: object
+      required: [name, email, subject, message]
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        subject:
+          type: string
+        message:
+          type: string
+
+    CreateContactData:
+      type: object
+      required: [id]
+      properties:
+        id:
+          type: integer
+
+    CreateContactResponse:
+      type: object
+      required: [success, message, data]
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+        data:
+          $ref: '#/components/schemas/CreateContactData'
