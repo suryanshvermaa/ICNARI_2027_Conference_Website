@@ -25,6 +25,11 @@ void committee::createCommitteeMember(const HttpRequestPtr& req, std::function<v
         if(reqBody->isMember("specialization")) member.specialization=(*reqBody)["specialization"].asString();
         if(reqBody->isMember("description")) member.description=(*reqBody)["description"].asString();
         if(reqBody->isMember("priority")) member.priority=(*reqBody)["priority"].asInt();
+        if(member.committee==CommitteeNames::organizingCommittee){
+            if(reqBody->isMember("position")) member.position=(*reqBody)["position"].asString();
+            else
+                throw AppError("Missing required field for organizing committee member: position", k400BadRequest);
+        }        
 
         // file upload handling
         MultiPartParser fileParser;
@@ -78,6 +83,9 @@ void committee::getCommitteeMembers(const HttpRequestPtr& req, std::function<voi
             memberJson["committee"]=member.committee;
             memberJson["priority"]=member.priority;
             memberJson["description"]=member.description;
+            if(member.position!=""){
+                memberJson["position"]=member.position;
+            }
             response.append(memberJson);
         }
         callback(Response::success(k200OK,"Committee members retrieved successfully",response));
@@ -108,6 +116,9 @@ void committee::getCommitteeMember(const HttpRequestPtr& req, std::function<void
         memberJson["committee"]=member.committee;
         memberJson["priority"]=member.priority;
         memberJson["description"]=member.description;
+        if(member.position!=""){
+            memberJson["position"]=member.position;
+        }
         callback(Response::success(k200OK,"Committee member retrieved successfully",memberJson));
     }
     catch(const AppError& e)
@@ -160,6 +171,7 @@ void committee::updateCommitteeMember(const HttpRequestPtr& req, std::function<v
         if(reqBody->isMember("specialization")) member.specialization=(*reqBody)["specialization"].asString();
         if(reqBody->isMember("description")) member.description=(*reqBody)["description"].asString();
         if(reqBody->isMember("priority")) member.priority=(*reqBody)["priority"].asInt();
+        if(reqBody->isMember("position")) member.position=(*reqBody)["position"].asString();
 
         // file upload handling
         MultiPartParser fileParser;

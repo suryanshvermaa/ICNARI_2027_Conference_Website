@@ -49,6 +49,7 @@ class Committee
         static const std::string _college;
         static const std::string _committee;
         static const std::string _profile_picture_object_key;
+        static const std::string _position;
         static const std::string _description;
         static const std::string _priority;
     };
@@ -158,6 +159,16 @@ class Committee
     void setProfilePictureObjectKey(std::string &&pProfilePictureObjectKey) noexcept;
     void setProfilePictureObjectKeyToNull() noexcept;
 
+    /**  For column position  */
+    ///Get the value of the column position, returns the default value if the column is null
+    const std::string &getValueOfPosition() const noexcept;
+    ///Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object if the column is null
+    const std::shared_ptr<std::string> &getPosition() const noexcept;
+    ///Set the value of the column position
+    void setPosition(const std::string &pPosition) noexcept;
+    void setPosition(std::string &&pPosition) noexcept;
+    void setPositionToNull() noexcept;
+
     /**  For column description  */
     ///Get the value of the column description, returns the default value if the column is null
     const std::string &getValueOfDescription() const noexcept;
@@ -178,7 +189,7 @@ class Committee
     void setPriorityToNull() noexcept;
 
 
-    static size_t getColumnNumber() noexcept {  return 8;  }
+    static size_t getColumnNumber() noexcept {  return 9;  }
     static const std::string &getColumnName(size_t index) noexcept(false);
 
     Json::Value toJson() const;
@@ -205,6 +216,7 @@ class Committee
     std::shared_ptr<std::string> college_;
     std::shared_ptr<std::string> committee_;
     std::shared_ptr<std::string> profilePictureObjectKey_;
+    std::shared_ptr<std::string> position_;
     std::shared_ptr<std::string> description_;
     std::shared_ptr<int32_t> priority_;
     struct MetaData
@@ -218,7 +230,7 @@ class Committee
         const bool notNull_;
     };
     static const std::vector<MetaData> metaData_;
-    bool dirtyFlag_[8]={ false };
+    bool dirtyFlag_[9]={ false };
   public:
     static const std::string &sqlForFindingByPrimaryKey()
     {
@@ -265,12 +277,17 @@ class Committee
         }
         if(dirtyFlag_[6])
         {
+            sql += "position,";
+            ++parametersCount;
+        }
+        if(dirtyFlag_[7])
+        {
             sql += "description,";
             ++parametersCount;
         }
         sql += "priority,";
         ++parametersCount;
-        if(!dirtyFlag_[7])
+        if(!dirtyFlag_[8])
         {
             needSelection=true;
         }
@@ -318,6 +335,11 @@ class Committee
             sql.append(placeholderStr, n);
         }
         if(dirtyFlag_[7])
+        {
+            n = sprintf(placeholderStr,"$%d,",placeholder++);
+            sql.append(placeholderStr, n);
+        }
+        if(dirtyFlag_[8])
         {
             n = sprintf(placeholderStr,"$%d,",placeholder++);
             sql.append(placeholderStr, n);

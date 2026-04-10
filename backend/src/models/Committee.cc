@@ -19,6 +19,7 @@ const std::string Committee::Cols::_specialization = "specialization";
 const std::string Committee::Cols::_college = "college";
 const std::string Committee::Cols::_committee = "committee";
 const std::string Committee::Cols::_profile_picture_object_key = "profile_picture_object_key";
+const std::string Committee::Cols::_position = "position";
 const std::string Committee::Cols::_description = "description";
 const std::string Committee::Cols::_priority = "priority";
 const std::string Committee::primaryKeyName = "id";
@@ -32,6 +33,7 @@ const std::vector<typename Committee::MetaData> Committee::metaData_={
 {"college","std::string","character varying",255,0,0,0},
 {"committee","std::string","character varying",32,0,0,1},
 {"profile_picture_object_key","std::string","character varying",255,0,0,0},
+{"position","std::string","character varying",255,0,0,0},
 {"description","std::string","text",0,0,0,0},
 {"priority","int32_t","integer",4,0,0,0}
 };
@@ -68,6 +70,10 @@ Committee::Committee(const Row &r, const ssize_t indexOffset) noexcept
         {
             profilePictureObjectKey_=std::make_shared<std::string>(r["profile_picture_object_key"].as<std::string>());
         }
+        if(!r["position"].isNull())
+        {
+            position_=std::make_shared<std::string>(r["position"].as<std::string>());
+        }
         if(!r["description"].isNull())
         {
             description_=std::make_shared<std::string>(r["description"].as<std::string>());
@@ -80,7 +86,7 @@ Committee::Committee(const Row &r, const ssize_t indexOffset) noexcept
     else
     {
         size_t offset = (size_t)indexOffset;
-        if(offset + 8 > r.size())
+        if(offset + 9 > r.size())
         {
             LOG_FATAL << "Invalid SQL result for this model";
             return;
@@ -119,9 +125,14 @@ Committee::Committee(const Row &r, const ssize_t indexOffset) noexcept
         index = offset + 6;
         if(!r[index].isNull())
         {
-            description_=std::make_shared<std::string>(r[index].as<std::string>());
+            position_=std::make_shared<std::string>(r[index].as<std::string>());
         }
         index = offset + 7;
+        if(!r[index].isNull())
+        {
+            description_=std::make_shared<std::string>(r[index].as<std::string>());
+        }
+        index = offset + 8;
         if(!r[index].isNull())
         {
             priority_=std::make_shared<int32_t>(r[index].as<int32_t>());
@@ -132,7 +143,7 @@ Committee::Committee(const Row &r, const ssize_t indexOffset) noexcept
 
 Committee::Committee(const Json::Value &pJson, const std::vector<std::string> &pMasqueradingVector) noexcept(false)
 {
-    if(pMasqueradingVector.size() != 8)
+    if(pMasqueradingVector.size() != 9)
     {
         LOG_ERROR << "Bad masquerading vector";
         return;
@@ -190,7 +201,7 @@ Committee::Committee(const Json::Value &pJson, const std::vector<std::string> &p
         dirtyFlag_[6] = true;
         if(!pJson[pMasqueradingVector[6]].isNull())
         {
-            description_=std::make_shared<std::string>(pJson[pMasqueradingVector[6]].asString());
+            position_=std::make_shared<std::string>(pJson[pMasqueradingVector[6]].asString());
         }
     }
     if(!pMasqueradingVector[7].empty() && pJson.isMember(pMasqueradingVector[7]))
@@ -198,7 +209,15 @@ Committee::Committee(const Json::Value &pJson, const std::vector<std::string> &p
         dirtyFlag_[7] = true;
         if(!pJson[pMasqueradingVector[7]].isNull())
         {
-            priority_=std::make_shared<int32_t>((int32_t)pJson[pMasqueradingVector[7]].asInt64());
+            description_=std::make_shared<std::string>(pJson[pMasqueradingVector[7]].asString());
+        }
+    }
+    if(!pMasqueradingVector[8].empty() && pJson.isMember(pMasqueradingVector[8]))
+    {
+        dirtyFlag_[8] = true;
+        if(!pJson[pMasqueradingVector[8]].isNull())
+        {
+            priority_=std::make_shared<int32_t>((int32_t)pJson[pMasqueradingVector[8]].asInt64());
         }
     }
 }
@@ -253,9 +272,17 @@ Committee::Committee(const Json::Value &pJson) noexcept(false)
             profilePictureObjectKey_=std::make_shared<std::string>(pJson["profile_picture_object_key"].asString());
         }
     }
-    if(pJson.isMember("description"))
+    if(pJson.isMember("position"))
     {
         dirtyFlag_[6]=true;
+        if(!pJson["position"].isNull())
+        {
+            position_=std::make_shared<std::string>(pJson["position"].asString());
+        }
+    }
+    if(pJson.isMember("description"))
+    {
+        dirtyFlag_[7]=true;
         if(!pJson["description"].isNull())
         {
             description_=std::make_shared<std::string>(pJson["description"].asString());
@@ -263,7 +290,7 @@ Committee::Committee(const Json::Value &pJson) noexcept(false)
     }
     if(pJson.isMember("priority"))
     {
-        dirtyFlag_[7]=true;
+        dirtyFlag_[8]=true;
         if(!pJson["priority"].isNull())
         {
             priority_=std::make_shared<int32_t>((int32_t)pJson["priority"].asInt64());
@@ -274,7 +301,7 @@ Committee::Committee(const Json::Value &pJson) noexcept(false)
 void Committee::updateByMasqueradedJson(const Json::Value &pJson,
                                             const std::vector<std::string> &pMasqueradingVector) noexcept(false)
 {
-    if(pMasqueradingVector.size() != 8)
+    if(pMasqueradingVector.size() != 9)
     {
         LOG_ERROR << "Bad masquerading vector";
         return;
@@ -331,7 +358,7 @@ void Committee::updateByMasqueradedJson(const Json::Value &pJson,
         dirtyFlag_[6] = true;
         if(!pJson[pMasqueradingVector[6]].isNull())
         {
-            description_=std::make_shared<std::string>(pJson[pMasqueradingVector[6]].asString());
+            position_=std::make_shared<std::string>(pJson[pMasqueradingVector[6]].asString());
         }
     }
     if(!pMasqueradingVector[7].empty() && pJson.isMember(pMasqueradingVector[7]))
@@ -339,7 +366,15 @@ void Committee::updateByMasqueradedJson(const Json::Value &pJson,
         dirtyFlag_[7] = true;
         if(!pJson[pMasqueradingVector[7]].isNull())
         {
-            priority_=std::make_shared<int32_t>((int32_t)pJson[pMasqueradingVector[7]].asInt64());
+            description_=std::make_shared<std::string>(pJson[pMasqueradingVector[7]].asString());
+        }
+    }
+    if(!pMasqueradingVector[8].empty() && pJson.isMember(pMasqueradingVector[8]))
+    {
+        dirtyFlag_[8] = true;
+        if(!pJson[pMasqueradingVector[8]].isNull())
+        {
+            priority_=std::make_shared<int32_t>((int32_t)pJson[pMasqueradingVector[8]].asInt64());
         }
     }
 }
@@ -393,9 +428,17 @@ void Committee::updateByJson(const Json::Value &pJson) noexcept(false)
             profilePictureObjectKey_=std::make_shared<std::string>(pJson["profile_picture_object_key"].asString());
         }
     }
-    if(pJson.isMember("description"))
+    if(pJson.isMember("position"))
     {
         dirtyFlag_[6] = true;
+        if(!pJson["position"].isNull())
+        {
+            position_=std::make_shared<std::string>(pJson["position"].asString());
+        }
+    }
+    if(pJson.isMember("description"))
+    {
+        dirtyFlag_[7] = true;
         if(!pJson["description"].isNull())
         {
             description_=std::make_shared<std::string>(pJson["description"].asString());
@@ -403,7 +446,7 @@ void Committee::updateByJson(const Json::Value &pJson) noexcept(false)
     }
     if(pJson.isMember("priority"))
     {
-        dirtyFlag_[7] = true;
+        dirtyFlag_[8] = true;
         if(!pJson["priority"].isNull())
         {
             priority_=std::make_shared<int32_t>((int32_t)pJson["priority"].asInt64());
@@ -558,6 +601,33 @@ void Committee::setProfilePictureObjectKeyToNull() noexcept
     dirtyFlag_[5] = true;
 }
 
+const std::string &Committee::getValueOfPosition() const noexcept
+{
+    const static std::string defaultValue = std::string();
+    if(position_)
+        return *position_;
+    return defaultValue;
+}
+const std::shared_ptr<std::string> &Committee::getPosition() const noexcept
+{
+    return position_;
+}
+void Committee::setPosition(const std::string &pPosition) noexcept
+{
+    position_ = std::make_shared<std::string>(pPosition);
+    dirtyFlag_[6] = true;
+}
+void Committee::setPosition(std::string &&pPosition) noexcept
+{
+    position_ = std::make_shared<std::string>(std::move(pPosition));
+    dirtyFlag_[6] = true;
+}
+void Committee::setPositionToNull() noexcept
+{
+    position_.reset();
+    dirtyFlag_[6] = true;
+}
+
 const std::string &Committee::getValueOfDescription() const noexcept
 {
     const static std::string defaultValue = std::string();
@@ -572,17 +642,17 @@ const std::shared_ptr<std::string> &Committee::getDescription() const noexcept
 void Committee::setDescription(const std::string &pDescription) noexcept
 {
     description_ = std::make_shared<std::string>(pDescription);
-    dirtyFlag_[6] = true;
+    dirtyFlag_[7] = true;
 }
 void Committee::setDescription(std::string &&pDescription) noexcept
 {
     description_ = std::make_shared<std::string>(std::move(pDescription));
-    dirtyFlag_[6] = true;
+    dirtyFlag_[7] = true;
 }
 void Committee::setDescriptionToNull() noexcept
 {
     description_.reset();
-    dirtyFlag_[6] = true;
+    dirtyFlag_[7] = true;
 }
 
 const int32_t &Committee::getValueOfPriority() const noexcept
@@ -599,12 +669,12 @@ const std::shared_ptr<int32_t> &Committee::getPriority() const noexcept
 void Committee::setPriority(const int32_t &pPriority) noexcept
 {
     priority_ = std::make_shared<int32_t>(pPriority);
-    dirtyFlag_[7] = true;
+    dirtyFlag_[8] = true;
 }
 void Committee::setPriorityToNull() noexcept
 {
     priority_.reset();
-    dirtyFlag_[7] = true;
+    dirtyFlag_[8] = true;
 }
 
 void Committee::updateId(const uint64_t id)
@@ -619,6 +689,7 @@ const std::vector<std::string> &Committee::insertColumns() noexcept
         "college",
         "committee",
         "profile_picture_object_key",
+        "position",
         "description",
         "priority"
     };
@@ -684,6 +755,17 @@ void Committee::outputArgs(drogon::orm::internal::SqlBinder &binder) const
     }
     if(dirtyFlag_[6])
     {
+        if(getPosition())
+        {
+            binder << getValueOfPosition();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
+    if(dirtyFlag_[7])
+    {
         if(getDescription())
         {
             binder << getValueOfDescription();
@@ -693,7 +775,7 @@ void Committee::outputArgs(drogon::orm::internal::SqlBinder &binder) const
             binder << nullptr;
         }
     }
-    if(dirtyFlag_[7])
+    if(dirtyFlag_[8])
     {
         if(getPriority())
         {
@@ -736,6 +818,10 @@ const std::vector<std::string> Committee::updateColumns() const
     if(dirtyFlag_[7])
     {
         ret.push_back(getColumnName(7));
+    }
+    if(dirtyFlag_[8])
+    {
+        ret.push_back(getColumnName(8));
     }
     return ret;
 }
@@ -799,6 +885,17 @@ void Committee::updateArgs(drogon::orm::internal::SqlBinder &binder) const
     }
     if(dirtyFlag_[6])
     {
+        if(getPosition())
+        {
+            binder << getValueOfPosition();
+        }
+        else
+        {
+            binder << nullptr;
+        }
+    }
+    if(dirtyFlag_[7])
+    {
         if(getDescription())
         {
             binder << getValueOfDescription();
@@ -808,7 +905,7 @@ void Committee::updateArgs(drogon::orm::internal::SqlBinder &binder) const
             binder << nullptr;
         }
     }
-    if(dirtyFlag_[7])
+    if(dirtyFlag_[8])
     {
         if(getPriority())
         {
@@ -871,6 +968,14 @@ Json::Value Committee::toJson() const
     {
         ret["profile_picture_object_key"]=Json::Value();
     }
+    if(getPosition())
+    {
+        ret["position"]=getValueOfPosition();
+    }
+    else
+    {
+        ret["position"]=Json::Value();
+    }
     if(getDescription())
     {
         ret["description"]=getValueOfDescription();
@@ -894,7 +999,7 @@ Json::Value Committee::toMasqueradedJson(
     const std::vector<std::string> &pMasqueradingVector) const
 {
     Json::Value ret;
-    if(pMasqueradingVector.size() == 8)
+    if(pMasqueradingVector.size() == 9)
     {
         if(!pMasqueradingVector[0].empty())
         {
@@ -964,9 +1069,9 @@ Json::Value Committee::toMasqueradedJson(
         }
         if(!pMasqueradingVector[6].empty())
         {
-            if(getDescription())
+            if(getPosition())
             {
-                ret[pMasqueradingVector[6]]=getValueOfDescription();
+                ret[pMasqueradingVector[6]]=getValueOfPosition();
             }
             else
             {
@@ -975,13 +1080,24 @@ Json::Value Committee::toMasqueradedJson(
         }
         if(!pMasqueradingVector[7].empty())
         {
-            if(getPriority())
+            if(getDescription())
             {
-                ret[pMasqueradingVector[7]]=getValueOfPriority();
+                ret[pMasqueradingVector[7]]=getValueOfDescription();
             }
             else
             {
                 ret[pMasqueradingVector[7]]=Json::Value();
+            }
+        }
+        if(!pMasqueradingVector[8].empty())
+        {
+            if(getPriority())
+            {
+                ret[pMasqueradingVector[8]]=getValueOfPriority();
+            }
+            else
+            {
+                ret[pMasqueradingVector[8]]=Json::Value();
             }
         }
         return ret;
@@ -1034,6 +1150,14 @@ Json::Value Committee::toMasqueradedJson(
     else
     {
         ret["profile_picture_object_key"]=Json::Value();
+    }
+    if(getPosition())
+    {
+        ret["position"]=getValueOfPosition();
+    }
+    else
+    {
+        ret["position"]=Json::Value();
     }
     if(getDescription())
     {
@@ -1096,14 +1220,19 @@ bool Committee::validateJsonForCreation(const Json::Value &pJson, std::string &e
         if(!validJsonOfField(5, "profile_picture_object_key", pJson["profile_picture_object_key"], err, true))
             return false;
     }
+    if(pJson.isMember("position"))
+    {
+        if(!validJsonOfField(6, "position", pJson["position"], err, true))
+            return false;
+    }
     if(pJson.isMember("description"))
     {
-        if(!validJsonOfField(6, "description", pJson["description"], err, true))
+        if(!validJsonOfField(7, "description", pJson["description"], err, true))
             return false;
     }
     if(pJson.isMember("priority"))
     {
-        if(!validJsonOfField(7, "priority", pJson["priority"], err, true))
+        if(!validJsonOfField(8, "priority", pJson["priority"], err, true))
             return false;
     }
     return true;
@@ -1112,7 +1241,7 @@ bool Committee::validateMasqueradedJsonForCreation(const Json::Value &pJson,
                                                    const std::vector<std::string> &pMasqueradingVector,
                                                    std::string &err)
 {
-    if(pMasqueradingVector.size() != 8)
+    if(pMasqueradingVector.size() != 9)
     {
         err = "Bad masquerading vector";
         return false;
@@ -1192,6 +1321,14 @@ bool Committee::validateMasqueradedJsonForCreation(const Json::Value &pJson,
                   return false;
           }
       }
+      if(!pMasqueradingVector[8].empty())
+      {
+          if(pJson.isMember(pMasqueradingVector[8]))
+          {
+              if(!validJsonOfField(8, pMasqueradingVector[8], pJson[pMasqueradingVector[8]], err, true))
+                  return false;
+          }
+      }
     }
     catch(const Json::LogicError &e)
     {
@@ -1237,14 +1374,19 @@ bool Committee::validateJsonForUpdate(const Json::Value &pJson, std::string &err
         if(!validJsonOfField(5, "profile_picture_object_key", pJson["profile_picture_object_key"], err, false))
             return false;
     }
+    if(pJson.isMember("position"))
+    {
+        if(!validJsonOfField(6, "position", pJson["position"], err, false))
+            return false;
+    }
     if(pJson.isMember("description"))
     {
-        if(!validJsonOfField(6, "description", pJson["description"], err, false))
+        if(!validJsonOfField(7, "description", pJson["description"], err, false))
             return false;
     }
     if(pJson.isMember("priority"))
     {
-        if(!validJsonOfField(7, "priority", pJson["priority"], err, false))
+        if(!validJsonOfField(8, "priority", pJson["priority"], err, false))
             return false;
     }
     return true;
@@ -1253,7 +1395,7 @@ bool Committee::validateMasqueradedJsonForUpdate(const Json::Value &pJson,
                                                  const std::vector<std::string> &pMasqueradingVector,
                                                  std::string &err)
 {
-    if(pMasqueradingVector.size() != 8)
+    if(pMasqueradingVector.size() != 9)
     {
         err = "Bad masquerading vector";
         return false;
@@ -1302,6 +1444,11 @@ bool Committee::validateMasqueradedJsonForUpdate(const Json::Value &pJson,
       if(!pMasqueradingVector[7].empty() && pJson.isMember(pMasqueradingVector[7]))
       {
           if(!validJsonOfField(7, pMasqueradingVector[7], pJson[pMasqueradingVector[7]], err, false))
+              return false;
+      }
+      if(!pMasqueradingVector[8].empty() && pJson.isMember(pMasqueradingVector[8]))
+      {
+          if(!validJsonOfField(8, pMasqueradingVector[8], pJson[pMasqueradingVector[8]], err, false))
               return false;
       }
     }
@@ -1449,8 +1596,28 @@ bool Committee::validJsonOfField(size_t index,
                 err="Type error in the "+fieldName+" field";
                 return false;
             }
+            // asString().length() creates a string object, is there any better way to validate the length?
+            if(pJson.isString() && pJson.asString().length() > 255)
+            {
+                err="String length exceeds limit for the " +
+                    fieldName +
+                    " field (the maximum value is 255)";
+                return false;
+            }
+
             break;
         case 7:
+            if(pJson.isNull())
+            {
+                return true;
+            }
+            if(!pJson.isString())
+            {
+                err="Type error in the "+fieldName+" field";
+                return false;
+            }
+            break;
+        case 8:
             if(pJson.isNull())
             {
                 return true;

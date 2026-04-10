@@ -9,6 +9,9 @@ int CommitteeRepository::createCommitteeMember(const committeeMemberStruct& memb
     committeeMember.setCommittee(member.committee);
     committeeMember.setPriority(member.priority);
     committeeMember.setDescription(member.description);
+    if(member.committee==CommitteeNames::organizingCommittee){
+        committeeMember.setPosition(member.position);
+    }
     Mapper<Committee> mapper(Database::getClient());
     mapper.insert(committeeMember);
     return committeeMember.getValueOfId();
@@ -24,6 +27,7 @@ void CommitteeRepository::updateCommitteeMember(int id,const committeeMemberStru
     if(member.committee!="") committeeMember.setCommittee(member.committee);
     if(member.priority!=0) committeeMember.setPriority(member.priority);
     if(member.description!="") committeeMember.setDescription(member.description);
+    if(member.position!="") committeeMember.setPosition(member.position);
     mapper.update(committeeMember);
 }
 
@@ -41,6 +45,9 @@ vector<committeeMemberStruct> CommitteeRepository::getCommitteeMembers(const std
         memberStruct.committee = member.getValueOfCommittee();
         memberStruct.priority = member.getValueOfPriority();
         memberStruct.description = member.getValueOfDescription();
+        if(member.getValueOfCommittee()==CommitteeNames::organizingCommittee){
+            memberStruct.position = member.getValueOfPosition();
+        }
         result.push_back(memberStruct);
     }
     return result;
@@ -58,6 +65,9 @@ committeeMemberStruct CommitteeRepository::getCommitteeMemberById(int id) {
     memberStruct.committee = member.getValueOfCommittee();
     memberStruct.priority = member.getValueOfPriority();
     memberStruct.description = member.getValueOfDescription();
+    if(member.getValueOfCommittee()==CommitteeNames::organizingCommittee){
+        memberStruct.position = member.getValueOfPosition();
+    }
     return memberStruct;
 }
 

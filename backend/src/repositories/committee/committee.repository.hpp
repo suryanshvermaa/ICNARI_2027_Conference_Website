@@ -33,6 +33,7 @@ struct committeeMemberStruct{
     std::string college;
     std::string committee;
     int priority;
+    std::string position;
     std::string description;
 };
 
