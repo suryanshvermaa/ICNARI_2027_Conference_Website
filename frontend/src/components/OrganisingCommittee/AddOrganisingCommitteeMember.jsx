@@ -27,7 +27,7 @@ const AddOrganisingCommitteeMember = () => {
     specialization:"",
     college:"",
     imageUrl:"",
-    committee:"",
+    role:"",
     description:""
   })
 
@@ -52,38 +52,36 @@ const AddOrganisingCommitteeMember = () => {
       return;
     }
 
-    // Upload image to Cloudinary
+    if (!image) {
+      toast.error('Please select an image.');
+      return;
+    }
+
     const formData = new FormData();
-    formData.append('image', image);
+    formData.append('file', image);
+    formData.append('name', organisingMemberData.name);
+    formData.append('specialization', organisingMemberData.specialization);
+    formData.append('college', organisingMemberData.college);
+    formData.append('committee', 'organizing');
+    formData.append('position', organisingMemberData.role);
+    formData.append('description', organisingMemberData.description);
+    formData.append('priority', '0');
 
     try {
-      // Replace with your Cloudinary upload API
-      const imageResponse = await axios.post(
-        `${import.meta.env.VITE_API_URL}/user/image`,
+      const response = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/v1/committee`,
         formData,
         {
           headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
             'Content-Type': 'multipart/form-data'
           },
         }
       );
-
-      if (imageResponse.data.result) {
-        const response = await axios.post(
-          `${import.meta.env.VITE_API_URL}/organisingcommitee/createMember`,
-          {...organisingMemberData,imageUrl:imageResponse.data.result},
-          {
-            headers: {
-              token:localStorage.getItem('token'),
-            },
-          }
-        );
-        console.log(response);
-        if (response.status === 201) {
-          toast.success(response.data.msg);
-          setImage(null);
-          setOrganisingMemberData({name:"",desription:"",imageUrl:"",specialization:"",college:"",committee:""})
-        }
+      if (response.status === 201) {
+        toast.success(response.data.message || 'Committee member created');
+        setImage(null);
+        setOrganisingMemberData({name:"",description:"",imageUrl:"",specialization:"",college:"",role:""})
       }
     } catch (error) {
       console.error('Error:', error);
@@ -138,14 +136,14 @@ const AddOrganisingCommitteeMember = () => {
           </div>
 
           <div>
-            <label className="admin-label">Committee</label>
+            <label className="admin-label">Role</label>
             <select
-              value={organisingMemberData.committee}
-              onChange={(e) => setOrganisingMemberData({...organisingMemberData,committee:e.target.value})}
+              value={organisingMemberData.role}
+              onChange={(e) => setOrganisingMemberData({...organisingMemberData,role:e.target.value})}
               className="admin-select"
               required
             >
-              <option value="" disabled>Select Committee</option>
+              <option value="" disabled>Select Role</option>
               {roles.map((role, index) => (
                 <option key={index} value={role}>
                   {role}

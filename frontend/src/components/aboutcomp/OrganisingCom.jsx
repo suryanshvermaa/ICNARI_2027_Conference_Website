@@ -69,6 +69,21 @@ const OrganisingCom = () => {
     [roles[14]]: [],
   });
 
+  const extractRoleAndDescription = (member) => {
+    const rawDescription = member?.description;
+    if (member?.position) {
+      return { role: member.position, description: String(rawDescription || '') };
+    }
+    if (!rawDescription) {
+      return { role: null, description: '' };
+    }
+    const match = String(rawDescription).match(/^Role:\s*(.+?)\s*\n([\s\S]*)$/);
+    if (!match) {
+      return { role: null, description: String(rawDescription) };
+    }
+    return { role: match[1], description: match[2] };
+  };
+
   useEffect(() => {
     async function fetchAllCommitteeMembers() {
       setLoading(true);
@@ -78,14 +93,18 @@ const OrganisingCom = () => {
           setLoading(false);
           return;
         }
-        const res = await axios.get(`${import.meta.env.VITE_API_URL}/organisingcommitee/getAllMembers`);
-        const updatedCommitteeMembers = { ...committeeMembers };
-        
-        for (let member of res.data.members) {
-          if (!updatedCommitteeMembers[member.committee]) {
-            updatedCommitteeMembers[member.committee] = [];
+        const res = await axios.get(
+          `${import.meta.env.VITE_API_URL}/api/v1/committee?committee=organizing&page=1&limit=1000`
+        );
+        const updatedCommitteeMembers = { ...committeeMembers, Other: [] };
+
+        for (let member of res.data.data) {
+          const { role } = extractRoleAndDescription(member);
+          const roleKey = roles.includes(role) ? role : 'Other';
+          if (!updatedCommitteeMembers[roleKey]) {
+            updatedCommitteeMembers[roleKey] = [];
           }
-          updatedCommitteeMembers[member.committee].push(member);
+          updatedCommitteeMembers[roleKey].push(member);
         }
         
         // Sort members by priority within each committee
@@ -116,7 +135,7 @@ const OrganisingCom = () => {
         Organizing Committee
         </h2>
         <div className="space-y-12">
-        {roles.map((role) => (
+        {[...roles, 'Other'].map((role) => (
           committeeMembers[role] && committeeMembers[role].length > 0 && (
           <div key={role} className="space-y-6">
             <h3 className="text-2xl font-semibold text-zinc-900 dark:text-slate-50 pl-4">
@@ -124,17 +143,19 @@ const OrganisingCom = () => {
               ? 'Chairman'
               : role === 'Organizing Chair'
               ? 'Organizing Chair/Convenor'
+              : role === 'Other'
+              ? 'Other'
               : role}
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {committeeMembers[role].map((member, idx) => (
               member?.name && (
               <div
-                key={member._id ?? idx}
+                key={member.id ?? idx}
                 className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm transition-shadow duration-300 hover:shadow-md dark:border-slate-700/60 dark:bg-slate-900/40"
               >
                 <img
-                src={member.imageUrl}
+                src={member.profile_picture_url}
                 alt={member.name}
                 className="w-40 h-40 rounded-full mx-auto mb-4 border-4 border-zinc-100 object-cover dark:border-slate-800"
                 />

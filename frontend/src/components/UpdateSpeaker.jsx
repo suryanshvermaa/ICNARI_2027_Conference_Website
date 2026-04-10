@@ -23,23 +23,16 @@ const UpdateSpeaker = () => {
     async function getSpeaker() {
       setLoading(true);
       try {
-        const res = await axios.get(
-          `${import.meta.env.VITE_API_URL}/speaker/get/${id}`,
-          {
-            headers: {
-              token: localStorage.getItem("token"),
-            },
-          }
-        );
-        const speakerData = res.data;
-        const specialization = speakerData.specialization?.join(", ") || "";
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/speaker/${id}`);
+        const speakerData = res?.data?.data;
+        const specialization = speakerData?.specialization || "";
         setSpeaker({
-          name: speakerData.name,
-          imageUrl: speakerData.imageUrl,
-          description: speakerData.description,
+          name: speakerData?.name || "",
+          imageUrl: speakerData?.profile_picture_url || "",
+          description: speakerData?.description || "",
           specialization,
         });
-        setPrevImage(speakerData.imageUrl);
+        setPrevImage(speakerData?.profile_picture_url || "");
       } catch {
         toast.error("Failed to load speaker details. Please try again.");
       } finally {
@@ -68,34 +61,21 @@ const UpdateSpeaker = () => {
     }
 
     try {
-      let imageUrl = speaker.imageUrl;
-
-      if (speaker.imageUrl !== prevImage) {
-        const formData = new FormData();
-        formData.append("image", image);
-
-        const imageResponse = await axios.post(
-          `${import.meta.env.VITE_API_URL}/user/image`,
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
-
-        imageUrl = imageResponse.data.result; // Update imageUrl with the uploaded image URL
+      const formData = new FormData();
+      formData.append('name', speaker.name);
+      formData.append('specialization', speaker.specialization);
+      formData.append('description', speaker.description);
+      if (speaker.imageUrl !== prevImage && image) {
+        formData.append('file', image);
       }
-      const response = await axios.put(
-        `${import.meta.env.VITE_API_URL}/speaker/update/${id}`,
-        { ...speaker, imageUrl },
-        {
-          headers: {
-            token: localStorage.getItem("token"),
-          },
-        }
-      );
-      if (response.status === 201) {
+
+      const response = await axios.put(`${import.meta.env.VITE_API_URL}/api/v1/speaker/${id}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (response?.data?.success) {
         setSpeaker({
           description: "",
           imageUrl: "",

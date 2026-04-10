@@ -9,9 +9,9 @@ const Allphotosgallery = () => {
         const fetchImages = async () => {
             setLoading(true);
             try {
-                const res = await fetch(`${import.meta.env.VITE_API_URL}/photogallery/all`);
+                const res = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/gallery/images?page=1&limit=1000`);
                 const data = await res.json();
-                setImages(data);
+                setImages(data?.data ?? []);
             } catch (error) {
                 console.error("Error fetching images:", error);
             } finally {
@@ -22,8 +22,15 @@ const Allphotosgallery = () => {
     }, []);
     const handleDelete = async (id) => {
         try {
-            await axios.delete(`${import.meta.env.VITE_API_URL}/photogallery/delete/${id}`, { headers: { token: localStorage.getItem('token') } });
-            setImages(Images.filter(photo => photo._id !== id));
+            const token = localStorage.getItem('token');
+                        if (!token) {
+                            console.error('Missing token for delete');
+                            return;
+                        }
+            await axios.delete(`${import.meta.env.VITE_API_URL}/api/v1/gallery/image/${id}`, {
+                            headers: { Authorization: `Bearer ${token}` },
+            });
+            setImages(Images.filter(photo => photo.id !== id));
         } catch (error) {
             console.error('Error deleting photo:', error);
         }
@@ -46,7 +53,7 @@ const Allphotosgallery = () => {
                     ) : (
                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                             {Images.map((photo) => (
-                                <div key={photo._id} className="admin-card overflow-hidden">
+                                <div key={photo.id} className="admin-card overflow-hidden">
                                     <div className="h-56 w-full bg-zinc-100">
                                         <img
                                             src={photo.imageUrl}
@@ -56,7 +63,7 @@ const Allphotosgallery = () => {
                                     </div>
                                     <div className="p-4">
                                         <button
-                                            onClick={() => handleDelete(photo._id)}
+                                            onClick={() => handleDelete(photo.id)}
                                             className="admin-button-danger w-full"
                                         >
                                             Delete

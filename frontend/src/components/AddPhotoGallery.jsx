@@ -33,49 +33,32 @@ const AddPhotoGallery = () => {
       return;
     }
 
+    if (!token) {
+      toast.error('Please log in first.');
+      return;
+    }
     setLoading(true);
 
-    // Create form data to send the image to cloudinary
     const formData = new FormData();
-    formData.append('image', image);
+    formData.append('file', image);
+    formData.append('title', image?.name || 'gallery-image');
+    formData.append('tags', tags);
 
     try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/user/image`,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          },
-        }
-      );
+      const result = await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/gallery/image`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-      const imageUrl = response.data.result; // Get the image URL from response
-    //   const tagsArray = tags.split(',').map(tag => tag.trim()); // Split tags by commas
-
-      // Now add the image URL and tags to the database
-      const galleryData = {
-        imageUrl,
-        tags: tags,
-      };
-
-      const result = await axios.post(
-        `${import.meta.env.VITE_API_URL}/photogallery/upload`,
-        galleryData,
-        {
-          headers: {
-            token: token,
-          },
-        }
-      );
-
-      toast.success(result.data.message);
+      toast.success(result?.data?.message || 'Uploaded successfully');
       setImage(null);
       setTags('');
       setImageUrl('');
     } catch (error) {
       console.error('Error uploading image or adding gallery:', error);
-      toast.error('Failed to upload image or add to gallery.');
+      toast.error(error?.response?.data?.message || 'Failed to upload image or add to gallery.');
     } finally {
       setLoading(false);
     }

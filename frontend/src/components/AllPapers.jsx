@@ -9,15 +9,24 @@ const AllPapers = () => {
   const [loading, setLoading] = useState(true);
   const token = localStorage.getItem('token');
 
+  const splitPaperDescription = (description) => {
+    const text = String(description || "");
+    const parts = text.split(/\n\nAuthors:\s*/i);
+    return {
+      content: (parts[0] || "").trim(),
+      authors: (parts[1] || "").trim(),
+    };
+  };
+
   useEffect(() => {
     // Fetch all papers when the component mounts
     const fetchPapers = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_API_URL}/papers/all`
-        );
-        setPapers(response.data);
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/notifications`, {
+          params: { type: "HIGHLIGHTS", page: 1, limit: 1000 },
+        });
+        setPapers(response?.data?.data ?? []);
       } catch (error) {
         console.error('Error fetching papers:', error);
         toast.error('Failed to fetch papers. Please try again.');
@@ -37,14 +46,14 @@ const AllPapers = () => {
 
     try {
       const response = await axios.delete(
-        `${import.meta.env.VITE_API_URL}/papers/delete/${id}`,
+        `${import.meta.env.VITE_API_URL}/api/v1/notifications/${id}`,
         {
-          headers: { token: token },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
       toast.success(response.data.message);
       // Remove the deleted paper from the state
-      setPapers(papers.filter((paper) => paper._id !== id));
+      setPapers(papers.filter((paper) => paper.id !== id));
     } catch (error) {
       console.error('Error deleting paper:', error);
       toast.error('Failed to delete paper. Please try again.');
@@ -69,23 +78,23 @@ const AllPapers = () => {
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {papers.map((paper) => (
-            <div key={paper._id} className="admin-card flex flex-col">
+            <div key={paper.id} className="admin-card flex flex-col">
               <div className="admin-card-inner flex flex-col flex-1">
               <div className="flex-grow">
-                <h3 className="text-base font-semibold text-zinc-900 mb-2 line-clamp-2">{paper.heading}</h3>
-                <p className="text-zinc-700 text-sm mb-4 line-clamp-4">{paper.content.slice(0, 150)}...</p>
+                <h3 className="text-base font-semibold text-zinc-900 mb-2 line-clamp-2">{paper.title}</h3>
+                <p className="text-zinc-700 text-sm mb-4 line-clamp-4">{splitPaperDescription(paper.description).content.slice(0, 150)}...</p>
                 {paper.link && (
                   <a href={paper.link} target="_blank" rel="noopener noreferrer" className="text-indigo-700 hover:text-indigo-800 text-sm mb-4 inline-block">
                     View Paper Link
                   </a>
                 )}
                 <p className="text-zinc-600 text-sm mb-4">
-                  Authors: {paper.authors.join(', ')}
+                  Authors: {splitPaperDescription(paper.description).authors || "—"}
                 </p>
               </div>
               <div className="mt-auto">
                 <button
-                  onClick={() => handleDelete(paper._id)}
+                  onClick={() => handleDelete(paper.id)}
                   className="admin-button-danger w-full"
                 >
                   Delete

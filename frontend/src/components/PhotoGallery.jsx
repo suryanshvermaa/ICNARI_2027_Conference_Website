@@ -8,9 +8,9 @@ const PhotoGallery = () => {
   const [selectedImage, setSelectedImage] = useState(null);
 
   useEffect(() => {
-    fetch(`${import.meta.env.VITE_API_URL}/photogallery/all`)
+    fetch(`${import.meta.env.VITE_API_URL}/api/v1/gallery/images?page=1&limit=1000`)
       .then(response => response.json())
-      .then(data => setImages(data)) // Show only 6 images
+      .then((data) => setImages(data?.data ?? []))
       .catch(error => console.error("Error fetching images:", error));
   }, []);
 

@@ -15,12 +15,13 @@ const AllMessages = () => {
         if (!token) {
           setMessages([]);
           toast.error('Please log in first.');
+          setLoading(false);
           return;
         }
 
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/contact`, {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/contact?page=1&limit=1000`, {
           headers: {
-            token,
+            Authorization: `Bearer ${token}`,
           },
         });
 
@@ -41,7 +42,7 @@ const AllMessages = () => {
         }
 
         const data = await res.json();
-        setMessages(Array.isArray(data) ? data : []);
+        setMessages(Array.isArray(data?.data) ? data.data : []);
       } catch (error) {
         console.error('Error fetching messages:', error);
         toast.error('Failed to fetch messages. Please try again.');
@@ -73,7 +74,7 @@ const AllMessages = () => {
         <div className="space-y-6">
           {messages.map((msg) => (
             <div
-              key={msg._id}
+              key={msg.id}
               className="admin-card"
             >
               <div className="admin-card-inner flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
@@ -83,7 +84,7 @@ const AllMessages = () => {
                   <p className="mt-2 text-zinc-800 text-sm whitespace-pre-wrap">{msg.message}</p>
                 </div>
                 <span className="text-xs text-zinc-500 mt-1 md:mt-0 shrink-0">
-                  {new Date(msg.createdAt).toLocaleString()}
+                  {new Date(msg.created_at).toLocaleString()}
                 </span>
               </div>
             </div>

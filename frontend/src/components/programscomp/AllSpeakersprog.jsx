@@ -19,16 +19,17 @@ export default function AllSpeakerprog() {
       setLoading(true)
       setError(null)
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/speaker/all`)
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/speaker?page=1&limit=1000`)
 
       if (!response.ok) {
         throw new Error("Failed to fetch speakers")
       }
 
       const data = await response.json()
-      data.sort((a, b) => (a.priority || 0) - (b.priority || 0))
-      setSpeakers(data)
-      setFilteredSpeakers(data)
+      const list = data?.data ?? []
+      list.sort((a, b) => (a.priority || 0) - (b.priority || 0))
+      setSpeakers(list)
+      setFilteredSpeakers(list)
     } catch (error) {
       console.error("Error fetching speakers:", error)
       setError("Failed to fetch speakers. Please try again.")
@@ -180,12 +181,12 @@ export default function AllSpeakerprog() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filteredSpeakers.map((speaker) => (
                   <div
-                    key={speaker._id}
+                    key={speaker.id}
                     className="site-card site-card-hover overflow-hidden group"
                   >
                     <div className="aspect-w-16 aspect-h-9 relative overflow-hidden">
                       <img
-                        src={speaker.imageUrl || "/placeholder.svg"}
+                        src={speaker.profile_picture_url || "/placeholder.svg"}
                         alt={speaker.name}
                         className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
                       />
@@ -197,14 +198,9 @@ export default function AllSpeakerprog() {
                       </h2>
 
                       <div className="flex flex-wrap gap-2 mb-4">
-                        {speaker.specialization.map((spec, index) => (
-                          <span
-                            key={index}
-                            className="px-3 py-1 bg-indigo-100 text-indigo-800 text-sm rounded-full hover:bg-indigo-200 transition-colors duration-200 dark:bg-indigo-500/20 dark:text-indigo-200 dark:hover:bg-indigo-500/30"
-                          >
-                            {spec}
-                          </span>
-                        ))}
+                        <span className="px-3 py-1 bg-indigo-100 text-indigo-800 text-sm rounded-full hover:bg-indigo-200 transition-colors duration-200 dark:bg-indigo-500/20 dark:text-indigo-200 dark:hover:bg-indigo-500/30">
+                          {speaker.specialization}
+                        </span>
                       </div>
                       <p className="text-zinc-600 dark:text-slate-200 line-clamp-4 text-sm leading-relaxed">
                         {speaker.description ||

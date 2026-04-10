@@ -9,18 +9,32 @@ const AllUpdates = () => {
   const [loading, setLoading] = useState(true);
   const token = localStorage.getItem('token');
 
+  const extractEventDate = (description) => {
+    if (!description) return null;
+    const match = String(description).match(/\bEvent Date:\s*(.+)\s*$/m);
+    if (!match) return null;
+    const value = match[1]?.trim();
+    if (!value) return null;
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
+  };
+
+  const stripEventDateLine = (description) => {
+    if (!description) return "";
+    return String(description)
+      .replace(/\n\nEvent Date:.*$/ms, "")
+      .trim();
+  };
+
   useEffect(() => {
     // Fetch all updates when the component mounts
     const fetchUpdates = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_API_URL}/recentupdate/all`,
-          {
-            headers: { token: token },
-          }
-        );
-        setUpdates(response.data);
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/notifications`, {
+          params: { type: "RECENT_UPDATES", page: 1, limit: 1000 },
+        });
+        setUpdates(response?.data?.data ?? []);
       } catch (error) {
         console.error('Error fetching updates:', error);
         toast.error('Failed to fetch updates. Please try again.');
@@ -40,14 +54,14 @@ const AllUpdates = () => {
 
     try {
       const response = await axios.delete(
-        `${import.meta.env.VITE_API_URL}/recentupdate/delete/${id}`,
+        `${import.meta.env.VITE_API_URL}/api/v1/notifications/${id}`,
         {
-          headers: { token: token },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
       toast.success(response.data.message);
       // Remove the deleted update from the state
-      setUpdates(updates.filter((update) => update._id !== id));
+      setUpdates(updates.filter((update) => update.id !== id));
     } catch (error) {
       console.error('Error deleting update:', error);
       toast.error('Failed to delete update. Please try again.');
@@ -72,21 +86,23 @@ const AllUpdates = () => {
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {updates.map((update) => (
-            <div key={update._id} className="admin-card flex flex-col">
+            <div key={update.id} className="admin-card flex flex-col">
               <div className="admin-card-inner flex flex-col flex-1">
                 <div className="flex-grow">
                 <h3 className="text-base font-semibold text-zinc-900 mb-2 line-clamp-2">{update.title}</h3>
-                <p className="text-zinc-700 text-sm mb-4 line-clamp-4">{update.description.slice(0, 150)}...</p>
+                <p className="text-zinc-700 text-sm mb-4 line-clamp-4">{stripEventDateLine(update.description).slice(0, 150)}...</p>
                 {update.link && (
                   <a href={update.link} target="_blank" rel="noopener noreferrer" className="text-indigo-700 hover:text-indigo-800 text-sm mb-4 inline-block">
                     View Update Link
                   </a>
                 )}
-                <p className="text-zinc-600 text-sm mb-4">Event Date: {new Date(update.eventDate).toLocaleString()}</p>
+                <p className="text-zinc-600 text-sm mb-4">
+                  Event Date: {(extractEventDate(update.description) || new Date(update.createdAt)).toLocaleString()}
+                </p>
               </div>
               <div className="mt-auto">
                 <button
-                  onClick={() => handleDelete(update._id)}
+                  onClick={() => handleDelete(update.id)}
                   className="admin-button-danger w-full"
                 >
                   Delete

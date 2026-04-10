@@ -16,14 +16,14 @@ const AllOrganisingCommitteeMembers = () => {
       setLoading(true);
       try {
         const response = await axios.get(
-          `${import.meta.env.VITE_API_URL}/organisingcommitee/getAllMembers`,
+          `${import.meta.env.VITE_API_URL}/api/v1/committee?committee=organizing&page=1&limit=1000`,
           {
             headers:{
-                token:token
+                Authorization: `Bearer ${token}`
             }
           }
         );
-        setOrganisingMembers(response.data.members);
+        setOrganisingMembers(response.data.data);
       } catch (error) {
         console.error('Error fetching members:', error);
         toast.error('Failed to fetch members. Please try again.');
@@ -43,14 +43,14 @@ const AllOrganisingCommitteeMembers = () => {
 
     try {
       const response = await axios.delete(
-        `${import.meta.env.VITE_API_URL}/organisingcommitee/deleteMember/${id}`,
+        `${import.meta.env.VITE_API_URL}/api/v1/committee/${id}`,
         {
-          headers: { token: token },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
       toast.success(response.data.message);
       // Remove the deleted speaker from the state
-      setOrganisingMembers(orgMembers=>orgMembers.filter((member) => member._id !== id));
+      setOrganisingMembers(orgMembers=>orgMembers.filter((member) => member.id !== id));
     } catch (error) {
       console.error('Error deleting member:', error);
       toast.error('Failed to delete member. Please try again.');
@@ -79,12 +79,34 @@ const AllOrganisingCommitteeMembers = () => {
       return;
     }
 
+    const member = organisingMembers.find((m) => m.id === id);
+    if (!member) {
+      toast.error('Member not found in list. Please refresh.');
+      return;
+    }
+
     try {
-      const response = await axios.patch(
-        `${import.meta.env.VITE_API_URL}/organisingcommitee/setPriority/${id}`,
-        { priority: priorityNum },
+      const formData = new FormData();
+      formData.append('priority', String(priorityNum));
+      formData.append('name', member.name);
+      formData.append('specialization', member.specialization);
+      formData.append('college', member.college);
+      formData.append('committee', member.committee);
+      if (member.position) {
+        formData.append('position', member.position);
+      } else {
+        const match = String(member.description || '').match(/^Role:\s*(.+?)\s*\n/);
+        if (match && match[1]) {
+          formData.append('position', match[1]);
+        }
+      }
+      formData.append('description', member.description);
+
+      const response = await axios.put(
+        `${import.meta.env.VITE_API_URL}/api/v1/committee/${id}`,
+        formData,
         {
-          headers: { token: token },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
       toast.success(response.data.message || 'Priority updated successfully');
@@ -94,12 +116,12 @@ const AllOrganisingCommitteeMembers = () => {
       
       // Optionally refresh the members list to reflect any changes
       const updatedResponse = await axios.get(
-        `${import.meta.env.VITE_API_URL}/organisingcommitee/getAllMembers`,
+        `${import.meta.env.VITE_API_URL}/api/v1/committee?committee=organizing&page=1&limit=1000`,
         {
-          headers: { token: token }
+          headers: { Authorization: `Bearer ${token}` }
         }
       );
-      setOrganisingMembers(updatedResponse.data.members);
+      setOrganisingMembers(updatedResponse.data.data);
     } catch (error) {
       console.error('Error setting priority:', error);
       toast.error('Failed to set priority. Please try again.');
@@ -128,10 +150,10 @@ const AllOrganisingCommitteeMembers = () => {
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {organisingMembers.map((member) => (
-            <div key={member._id} className="admin-card overflow-hidden flex flex-col">
+            <div key={member.id} className="admin-card overflow-hidden flex flex-col">
               <div className="w-full h-52 bg-zinc-100 flex-shrink-0">
                 <img
-                  src={member.imageUrl}
+                  src={member.profile_picture_url}
                   alt={member.name}
                   className="w-full h-full object-cover"
                 />
@@ -140,7 +162,7 @@ const AllOrganisingCommitteeMembers = () => {
               <div className="p-4 flex flex-col flex-grow">
                 <h3 className="font-semibold text-base mb-2 text-zinc-900 line-clamp-2">{member.name}</h3>
                 <p className="text-zinc-600 mb-2 text-sm line-clamp-2">
-                  {member.specialization.join(', ')}
+                  {member.specialization}
                 </p>
                 <p className="text-zinc-700 mb-3 font-medium text-sm line-clamp-2">
                   {member.college}
@@ -162,12 +184,12 @@ const AllOrganisingCommitteeMembers = () => {
                     <input
                       type="number"
                       placeholder="Priority"
-                      value={priorityValues[member._id] || ''}
-                      onChange={(e) => handlePriorityInputChange(member._id, e.target.value)}
+                      value={priorityValues[member.id] || ''}
+                      onChange={(e) => handlePriorityInputChange(member.id, e.target.value)}
                       className="admin-input py-1.5 text-xs"
                     />
                     <button
-                      onClick={() => handleSetPriority(member._id)}
+                      onClick={() => handleSetPriority(member.id)}
                       className="admin-button-primary px-3 py-1.5 text-xs"
                     >
                       Set
@@ -178,13 +200,13 @@ const AllOrganisingCommitteeMembers = () => {
                 {/* Action Buttons */}
                 <div className="flex gap-2 mt-auto">
                   <button
-                    onClick={() => navigate(`/admin/all-organising-members/${member._id}`)}
+                    onClick={() => navigate(`/admin/all-organising-members/${member.id}`)}
                     className="admin-button-primary flex-1 py-2 text-xs"
                   >
                     Update
                   </button>
                   <button
-                    onClick={() => handleDelete(member._id)}
+                    onClick={() => handleDelete(member.id)}
                     className="admin-button-danger flex-1 py-2 text-xs"
                   >
                     Delete

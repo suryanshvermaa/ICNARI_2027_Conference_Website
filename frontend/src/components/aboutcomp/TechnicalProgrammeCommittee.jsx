@@ -42,13 +42,13 @@ const TechnicalProgrammeCommittee = () => {
           return;
         }
         const res = await axios.get(
-          `${import.meta.env.VITE_API_URL}/technicalcommitee/getAllMembers`
+          `${import.meta.env.VITE_API_URL}/api/v1/committee?committee=programme&page=1&limit=1000`
         );
-        setCookie("tpcMembersCache", res.data.members, {
+        setCookie("tpcMembersCache", res.data.data, {
           path: "/",
           maxAge: 86400,
         }); // Cache for 1 day
-        setCommitteeMembers(res.data.members);
+        setCommitteeMembers(res.data.data);
         setLoading(false);
       } catch {
         setLoading(false);
@@ -78,7 +78,7 @@ const TechnicalProgrammeCommittee = () => {
                       aria-label={`Committee member: ${member.name}`}
                     >
                       <img
-                        src={member.imageUrl}
+                        src={member.profile_picture_url}
                         alt={member.name}
                         className="w-28 h-28 rounded-full mb-4 border-4 border-blue-100 dark:border-blue-500/20 object-cover shadow"
                       />

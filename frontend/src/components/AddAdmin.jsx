@@ -13,44 +13,42 @@ const AddAdmin = () => {
 	// Handle form submission
 	const handleSubmit = async (e) => {
 		e.preventDefault();
+		const token = localStorage.getItem('token');
+		if (!token) {
+			toast.error('Please log in first.');
+			return;
+		}
 
 		try {
-			// First, upload the image to your API
-			const formData = new FormData();
-			formData.append('image', image); // Pass the image as 'image' field
-
-			const imageUploadResponse = await axios.post(`${import.meta.env.VITE_API_URL}/user/image`, formData, {
-				headers: {
-					'Content-Type': 'multipart/form-data',
-				},
-			});
-
-			const imageUrl = imageUploadResponse.data.result;
-			setImageLink(imageUrl);
-
-			// Now create a new admin with the image URL
-			const newAdminData = {
-				name,
-				email,
-				password,
-				pic: imageUrl,
-			};
-
-			const createAdminResponse = await axios.post(
-				`${import.meta.env.VITE_API_URL}/user/newuser`,
-				newAdminData,
-				{ headers: { token: localStorage.getItem('token') } }
-			);
-			console.log(createAdminResponse);
-			if (createAdminResponse.status === 200) {
-				toast.success(createAdminResponse.data.msg);
-				// Reset form after successful admin creation
-				setName('');
-				setEmail('');
-				setPassword('');
-				setImage(null);
-				setImageLink('');
+			if (image) {
+				const imageForm = new FormData();
+				imageForm.append('file', image);
+				const uploadRes = await axios.post(
+					`${import.meta.env.VITE_API_URL}/api/v1/users/uploadProfilePicture`,
+					imageForm,
+					{
+						headers: {
+							Authorization: `Bearer ${token}`,
+							'Content-Type': 'multipart/form-data',
+						},
+					}
+				);
+				if (uploadRes?.data?.message) {
+					toast.success(uploadRes.data.message);
+				}
 			}
+
+			const updateRes = await axios.put(
+				`${import.meta.env.VITE_API_URL}/api/v1/users`,
+				{ name, email, password },
+				{ headers: { Authorization: `Bearer ${token}` } }
+			);
+			toast.success(updateRes?.data?.message || 'User updated');
+			setName('');
+			setEmail('');
+			setPassword('');
+			setImage(null);
+			setImageLink('');
 		} catch (error) {
 			console.error('Error:', error);
 			toast.error('Something went wrong! Please try again.');

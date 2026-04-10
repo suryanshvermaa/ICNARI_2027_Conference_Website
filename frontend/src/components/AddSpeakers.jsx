@@ -31,53 +31,37 @@ const AddSpeaker = () => {
       return;
     }
 
-    // Upload image to Cloudinary
+    if (!image) {
+      toast.error('Please upload an image.');
+      return;
+    }
+
     const formData = new FormData();
-    formData.append('image', image);
+    formData.append('file', image);
+    formData.append('name', name);
+    formData.append('specialization', specialization);
+    formData.append('description', desription);
+    formData.append('priority', '0');
 
     try {
-      // Replace with your Cloudinary upload API
-      const imageResponse = await axios.post(
-        `${import.meta.env.VITE_API_URL}/user/image`,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data'
-          },
-        }
-      );
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/speaker`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-      if (imageResponse.data.result) {
-        const speakerData = {
-          name,
-          specialization: specialization, // Split by commas
-          imageUrl: imageResponse.data.result,
-          description:desription
-        };
-
-        // Now add the speaker data
-        const response = await axios.post(
-          `${import.meta.env.VITE_API_URL}/speaker/create`,
-          speakerData,
-          {
-            headers: {
-              token:localStorage.getItem('token'),
-            },
-          }
-        );
-        console.log(response);
-        if (response.status === 201) {
-          toast.success(response.data.message);
-          setName('');
-          setSpecialization('');
-          setImage(null);
-          setImageUrl('');
-          setdescription('')
-        }
+      if (response?.data?.success) {
+        toast.success(response.data.message);
+        setName('');
+        setSpecialization('');
+        setImage(null);
+        setImageUrl('');
+        setdescription('')
       }
     } catch (error) {
       console.error('Error:', error);
-      toast.error('Failed to add the speaker. Please try again.');
+      toast.error(error?.response?.data?.message || 'Failed to add the speaker. Please try again.');
     }
   };
 

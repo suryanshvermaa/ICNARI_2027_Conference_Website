@@ -17,15 +17,15 @@ const AllSpeakers = () => {
     const fetchSpeakers = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(
-          `${import.meta.env.VITE_API_URL}/speaker/all`
-        );
-        console.log(response.data)
-        setSpeakers(response.data);
+        const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/speaker`, {
+          params: { page: 1, limit: 1000 },
+        });
+        const speakersData = response?.data?.data ?? [];
+        setSpeakers(speakersData);
         // Initialize priorities state with current speaker priorities
         const initialPriorities = {};
-        response.data.forEach(speaker => {
-          initialPriorities[speaker._id] = speaker.priority || 0;
+        speakersData.forEach(speaker => {
+          initialPriorities[speaker.id] = speaker.priority || 0;
         });
         setPriorities(initialPriorities);
       } catch (error) {
@@ -55,21 +55,22 @@ const AllSpeakers = () => {
 
     try {
       const priority = priorities[id];
-      await axios.patch(
-        `${import.meta.env.VITE_API_URL}/speaker/setPriority/${id}`,
-        { priority },
-        {
-          headers: { token: token },
-        }
-      );
+      const formData = new FormData();
+      formData.append('priority', String(priority ?? 0));
+      await axios.put(`${import.meta.env.VITE_API_URL}/api/v1/speaker/${id}`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`,
+        },
+      });
       toast.success('Priority updated successfully!');
       // Update the speaker in the state
       setSpeakers(speakers.map(speaker => 
-        speaker._id === id ? { ...speaker, priority } : speaker
+        speaker.id === id ? { ...speaker, priority } : speaker
       ));
     } catch (error) {
       console.error('Error setting priority:', error);
-      toast.error('Failed to set priority. Please try again.');
+      toast.error(error?.response?.data?.message || 'Failed to set priority. Please try again.');
     }
   };
 
@@ -82,17 +83,17 @@ const AllSpeakers = () => {
 
     try {
       const response = await axios.delete(
-        `${import.meta.env.VITE_API_URL}/speaker/delete/${id}`,
+        `${import.meta.env.VITE_API_URL}/api/v1/speaker/${id}`,
         {
-          headers: { token: token },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
       toast.success(response.data.message);
       // Remove the deleted speaker from the state
-      setSpeakers(speakers.filter((speaker) => speaker._id !== id));
+      setSpeakers(speakers.filter((speaker) => speaker.id !== id));
     } catch (error) {
       console.error('Error deleting speaker:', error);
-      toast.error('Failed to delete speaker. Please try again.');
+      toast.error(error?.response?.data?.message || 'Failed to delete speaker. Please try again.');
     }
   };
 
@@ -113,11 +114,11 @@ const AllSpeakers = () => {
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {speakers.map((speaker) => (
-            <div key={speaker._id} className="admin-card overflow-hidden">
+            <div key={speaker.id} className="admin-card overflow-hidden">
               {/* Image Section */}
               <div className="w-full h-44 bg-zinc-100">
                 <img
-                  src={speaker.imageUrl}
+                  src={speaker.profile_picture_url}
                   alt={speaker.name}
                   className="w-full h-full object-cover"
                 />
@@ -129,7 +130,7 @@ const AllSpeakers = () => {
                 <div className="mb-3">
                   <h3 className="font-semibold text-base mb-1 text-zinc-900 truncate">{speaker.name}</h3>
                   <p className="text-zinc-600 text-xs leading-relaxed line-clamp-2">
-                    {speaker.specialization.join(', ')}
+                    {speaker.specialization}
                   </p>
                 </div>
 
@@ -145,13 +146,13 @@ const AllSpeakers = () => {
                     <input
                       type="number"
                       min="0"
-                      value={priorities[speaker._id] || 0}
-                      onChange={(e) => handlePriorityChange(speaker._id, e.target.value)}
+                      value={priorities[speaker.id] || 0}
+                      onChange={(e) => handlePriorityChange(speaker.id, e.target.value)}
                       className="admin-input py-1.5 text-xs"
                       placeholder="0"
                     />
                     <button
-                      onClick={() => handleSetPriority(speaker._id)}
+                      onClick={() => handleSetPriority(speaker.id)}
                       className="admin-button-primary px-3 py-1.5 text-xs"
                     >
                       Set
@@ -162,13 +163,13 @@ const AllSpeakers = () => {
                 {/* Action Buttons */}
                 <div className="flex gap-2">
                   <button
-                    onClick={() => handleDelete(speaker._id)}
+                    onClick={() => handleDelete(speaker.id)}
                     className="admin-button-danger flex-1 py-2 text-xs"
                   >
                     Delete
                   </button>
                   <button
-                    onClick={() => navigate(`/admin/all-speakers/update/${speaker._id}`)}
+                    onClick={() => navigate(`/admin/all-speakers/update/${speaker.id}`)}
                     className="admin-button-primary flex-1 py-2 text-xs"
                   >
                     Update

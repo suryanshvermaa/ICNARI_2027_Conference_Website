@@ -15,16 +15,15 @@ export default function Login({setfetch}) {
 
     try {
       const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/user/login`,
+        `${import.meta.env.VITE_API_URL}/api/v1/auth/login`,
         { email, password }
       );
 
-      if (response.data.token) {
-        localStorage.setItem("token", response.data.token);
-        console.log(response.data);
-        // Show success toast
-        localStorage.setItem("photo", response.data?.user?.photo);
-        localStorage.setItem("name", response.data?.user?.name);
+      const token = response?.data?.data?.token;
+      if (token) {
+        localStorage.setItem("token", token);
+        localStorage.setItem("name", response?.data?.data?.name ?? "");
+        localStorage.setItem("email", response?.data?.data?.email ?? "");
         toast.success("Login Successful! You have been logged in.", {
           position: "top-right",
           autoClose: 3000,
@@ -36,7 +35,7 @@ export default function Login({setfetch}) {
         navigate("/admin"); // Redirect to admin page
       } else {
         // Show error toast for invalid credentials
-        toast.error("Invalid credentials. Please check your email and password.", {
+        toast.error(response?.data?.message || "Invalid credentials. Please check your email and password.", {
           position: "top-right",
           autoClose: 3000,
           hideProgressBar: true,
@@ -44,9 +43,9 @@ export default function Login({setfetch}) {
           pauseOnHover: true,
         });
       }
-    } catch {
+    } catch (error) {
       // Show error toast if request fails
-      toast.error("An error occurred while logging in.", {
+      toast.error(error?.response?.data?.message || "An error occurred while logging in.", {
         position: "top-right",
         autoClose: 3000,
         hideProgressBar: true,

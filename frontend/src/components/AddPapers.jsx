@@ -20,28 +20,28 @@ const AddPaper = () => {
       return;
     }
 
-    // Split authors by commas and remove extra spaces
-    
+    const paperDescription = `${content}\n\nAuthors: ${authors}`.trim();
 
     const newPaperData = {
-      heading,
-      authors: authors,
-      link: link || '', // If no link, send an empty string
-      content,
+      title: heading,
+      description: paperDescription,
+      type: "HIGHLIGHTS",
+      link: link || '',
+      priority: 0,
     };
 
     try {
       const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/papers/add`,
+        `${import.meta.env.VITE_API_URL}/api/v1/notifications`,
         newPaperData,
         {
           headers: {
-            token: token,
+            Authorization: `Bearer ${token}`,
           },
         }
       );
       console.log(response);
-      if (response.status === 201) {
+      if (response?.data?.success) {
         toast.success(response.data.message);
         setHeading('');
         setAuthors('');

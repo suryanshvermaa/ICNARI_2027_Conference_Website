@@ -20,29 +20,32 @@ const AddRecentUpdates = () => {
       return;
     }
 
-    // Convert the date to the required format
-    const formattedDate = new Date(eventDate).toISOString();
+    const formattedDate = eventDate ? new Date(eventDate).toISOString() : "";
+    const fullDescription = formattedDate
+      ? `${description}\n\nEvent Date: ${formattedDate}`
+      : description;
 
     const updateData = {
       title,
-      description,
-      link: link || '', // Add link if available, else pass an empty string
-      eventDate: formattedDate,
+      description: fullDescription,
+      type: "RECENT_UPDATES",
+      link: link || '',
+      priority: 0,
     };
 
     try {
       const response = await axios.post(
-        `${import.meta.env.VITE_API_URL}/recentupdate/add`,
+        `${import.meta.env.VITE_API_URL}/api/v1/notifications`,
         updateData,
         {
           headers: {
-            token: token,
+            Authorization: `Bearer ${token}`,
           },
         }
       );
 
-      if (response.status === 201) {
-        toast.success(response.data.message);   
+      if (response?.data?.success) {
+        toast.success(response.data.message);
         // Reset form after successful submission
         setTitle('');
         setDescription('');

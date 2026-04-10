@@ -3,19 +3,22 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 const AllUpdatesUser = () => {
     const [updates, setUpdates] = useState([]);
-    const token = localStorage.getItem('token');
+
+    const stripEventDateLine = (description) => {
+      if (!description) return "";
+      return String(description)
+        .replace(/\n\nEvent Date:.*$/ms, "")
+        .trim();
+    };
   
     useEffect(() => {
       // Fetch all updates when the component mounts
       const fetchUpdates = async () => {
         try {
-          const response = await axios.get(
-            `${import.meta.env.VITE_API_URL}/recentupdate/all`,
-            {
-              headers: { token: token },
-            }
-          );
-          setUpdates(response.data);
+          const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/notifications`, {
+            params: { type: "RECENT_UPDATES", page: 1, limit: 1000 },
+          });
+          setUpdates(response?.data?.data ?? []);
         } catch (error) {
           console.error('Error fetching updates:', error);
           toast.error('Failed to fetch updates. Please try again.');
@@ -31,7 +34,7 @@ const AllUpdatesUser = () => {
               <li key={index} className="rounded-lg border border-zinc-200 bg-amber-50/80 p-4 shadow-sm flex justify-between items-center transition-transform duration-300 dark:border-slate-700/60 dark:bg-amber-500/10">
                 <div>
                   <strong className="text-zinc-900 dark:text-slate-50">{update.title}</strong>
-                  <p className="text-zinc-600 dark:text-slate-300 text-sm">{update.description}</p>
+                  <p className="text-zinc-600 dark:text-slate-300 text-sm">{stripEventDateLine(update.description)}</p>
                 </div>
                 {update.link && (
                   <a href={update.link} target="_blank" rel="noopener noreferrer">

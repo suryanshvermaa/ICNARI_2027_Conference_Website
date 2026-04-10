@@ -32,25 +32,34 @@ const UpdateMember = () => {
     specialization:"",
     college:"",
     imageUrl:"",
-    committee:"",
+    role:"",
     description:""
   })
+
+  const parseRoleDescription = (raw) => {
+    if (!raw) return { role: '', description: '' };
+    const match = String(raw).match(/^Role:\s*(.+?)\s*\n([\s\S]*)$/);
+    if (!match) return { role: '', description: String(raw) };
+    return { role: match[1], description: match[2] };
+  };
   useEffect(()=>{
     async function getData(){
         setLoading(true);
         try {
-          const res=await axios.get(`${import.meta.env.VITE_API_URL}/organisingcommitee/getMember/${id}`,{
-              headers:{token:localStorage.getItem("token")}
+          const res=await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/committee/${id}`,{
+              headers:{Authorization: `Bearer ${localStorage.getItem("token")}`}
           });
-          const member=res.data.member;
+          const member=res.data.data;
           console.log(member);
+            const parsed = parseRoleDescription(member.description);
+            const roleValue = member.position || parsed.role;
           setOrganisingMemberData({
               college:member.college,
-              committee:member.committee,
-              description:member.description,
-              imageUrl:member.imageUrl,
+              role: roleValue,
+              description: parsed.description,
+              imageUrl:member.profile_picture_url,
               name:member.name,
-              specialization:member.specialization.join(", ")
+              specialization:member.specialization
           })
         } catch {
           toast.error('Failed to load member details. Please try again.');
@@ -80,42 +89,35 @@ const UpdateMember = () => {
       return;
     }
 
-    // Upload image to Cloudinary
-    const formData = new FormData();
-    formData.append('image', image);
-
     try {
-      // Replace with your Cloudinary upload API
-      const imageResponse = await axios.post(
-        `${import.meta.env.VITE_API_URL}/user/image`,
+      const formData = new FormData();
+      if (image) {
+        formData.append('file', image);
+      }
+      formData.append('name', organisingMemberData.name);
+      formData.append('specialization', organisingMemberData.specialization);
+      formData.append('college', organisingMemberData.college);
+      formData.append('committee', 'organizing');
+      formData.append('position', organisingMemberData.role);
+
+      formData.append('description', organisingMemberData.description);
+
+      const response = await axios.put(
+        `${import.meta.env.VITE_API_URL}/api/v1/committee/${id}`,
         formData,
         {
           headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
             'Content-Type': 'multipart/form-data'
           },
         }
       );
-
-      if (imageResponse.data.result) {
-        const response = await axios.put(
-          `${import.meta.env.VITE_API_URL}/organisingcommitee/updateMember/${id}`,
-          {...organisingMemberData,imageUrl:imageResponse.data.result},
-          {
-            headers: {
-              token:localStorage.getItem('token'),
-            },
-          }
-        );
-        console.log(response);
-        if (response.status === 201) {
-          toast.success(response.data.msg);
-          setImage(null);
-          setOrganisingMemberData({name:"",desription:"",imageUrl:"",specialization:"",college:"",committee:""})
-          setTimeout(()=>{
-            navigate("/admin/all-organising-members");
-          },1000)
-        }
-      }
+      console.log(response);
+      toast.success(response.data.message || 'Committee member updated');
+      setImage(null);
+      setTimeout(()=>{
+        navigate("/admin/all-organising-members");
+      },1000)
     } catch {
       toast.error('Failed to update the new committee member. Please try again.');
     }
@@ -171,14 +173,14 @@ const UpdateMember = () => {
           </div>
 
           <div>
-            <label className="admin-label">Committee</label>
+            <label className="admin-label">Role</label>
             <select
-              value={organisingMemberData.committee}
-              onChange={(e) => setOrganisingMemberData({...organisingMemberData,committee:e.target.value})}
+              value={organisingMemberData.role}
+              onChange={(e) => setOrganisingMemberData({...organisingMemberData,role:e.target.value})}
               className="admin-select"
               required
             >
-              <option value="" disabled>Select Committee</option>
+              <option value="" disabled>Select Role</option>
               {roles.map((role, index) => (
                 <option key={index} value={role}>
                   {role}

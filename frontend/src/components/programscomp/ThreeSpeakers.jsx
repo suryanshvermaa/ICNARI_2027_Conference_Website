@@ -13,10 +13,12 @@ const AllSpeakerprog = () => {
         // Fetch all speakers when the component mounts
         const fetchSpeakers = async () => {
             try {
-                const response = await axios.get(
-                    `${import.meta.env.VITE_API_URL}/speaker/all`
-                );
-                setSpeakers(response.data.slice(0, 3));
+                const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/speaker`, {
+                  params: { page: 1, limit: 1000 },
+                });
+                const data = response?.data?.data ?? [];
+                data.sort((a, b) => (a.priority || 0) - (b.priority || 0));
+                setSpeakers(data.slice(0, 3));
             } catch (error) {
                 console.error('Error fetching speakers:', error);
                 toast.error('Failed to fetch speakers. Please try again.');
@@ -34,17 +36,17 @@ const AllSpeakerprog = () => {
             <h2 className="text-3xl font-semibold text-center mb-8 border-b-4 border-b-indigo-600 dark:border-b-indigo-300 text-zinc-900 dark:text-slate-50">Speakers</h2>
             <div className="grid  gap-8">
                 {speakers.map((speaker) => (
-                    <div key={speaker._id} className="site-card overflow-hidden mb-6 flex flex-col md:flex-row">
+                    <div key={speaker.id} className="site-card overflow-hidden mb-6 flex flex-col md:flex-row">
                         {/* Speaker Photo and Info */}
                         <div className="w-full md:w-[30%] flex flex-col p-4 bg-zinc-50 dark:bg-slate-900/40">
                             <img
-                                src={speaker.imageUrl}
+                                src={speaker.profile_picture_url}
                                 alt={speaker.name}
                                 className="w-full h-[250px] object-fill rounded-lg mb-4"
                             />
                             <div className="text-center">
                                 <h3 className="text-xl font-semibold uppercase text-zinc-900 dark:text-slate-50">{speaker.name}</h3>
-                                <p className="text-zinc-700 dark:text-slate-200 text-sm md:text-lg lg:text-xl capitalize">{speaker.specialization.join(', ')}</p>
+                                <p className="text-zinc-700 dark:text-slate-200 text-sm md:text-lg lg:text-xl capitalize">{speaker.specialization}</p>
                                 
                             </div>
                         </div>

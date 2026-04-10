@@ -15,14 +15,14 @@ const AllInternationalAdvisoryCommitteeMembers = () => {
       setLoading(true);
       try {
         const response = await axios.get(
-          `${import.meta.env.VITE_API_URL}/internationalcommitee/getAllMembers`,
+          `${import.meta.env.VITE_API_URL}/api/v1/committee?committee=international&page=1&limit=1000`,
           {
             headers:{
-                token:token
+                Authorization: `Bearer ${token}`
             }
           }
         );
-        setOrganisingMembers(response.data.members);
+        setOrganisingMembers(response.data.data);
       } catch (error) {
         console.error('Error fetching members:', error);
         toast.error('Failed to fetch members. Please try again.');
@@ -42,14 +42,14 @@ const AllInternationalAdvisoryCommitteeMembers = () => {
 
     try {
       const response = await axios.delete(
-        `${import.meta.env.VITE_API_URL}/internationalcommitee/deleteMember/${id}`,
+        `${import.meta.env.VITE_API_URL}/api/v1/committee/${id}`,
         {
-          headers: { token: token },
+          headers: { Authorization: `Bearer ${token}` },
         }
       );
       toast.success(response.data.message);
       // Remove the deleted speaker from the state
-      setOrganisingMembers(orgMembers=>orgMembers.filter((member) => member._id !== id));
+      setOrganisingMembers(orgMembers=>orgMembers.filter((member) => member.id !== id));
     } catch (error) {
       console.error('Error deleting member:', error);
       toast.error('Failed to delete member. Please try again.');
@@ -74,10 +74,10 @@ const AllInternationalAdvisoryCommitteeMembers = () => {
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {organisingMembers.map((member) => (
-            <div key={member._id} className="admin-card overflow-hidden">
+            <div key={member.id} className="admin-card overflow-hidden">
               <div className="h-44 w-full bg-zinc-100">
                 <img
-                  src={member.imageUrl}
+                  src={member.profile_picture_url}
                   alt={member.name}
                   className="h-full w-full object-cover"
                 />
@@ -88,7 +88,7 @@ const AllInternationalAdvisoryCommitteeMembers = () => {
                     <div className="min-w-0">
                     <h3 className="truncate text-base font-semibold text-zinc-900">{member.name}</h3>
                     <div className="admin-muted mt-1 line-clamp-2">
-                      {member.specialization.join(', ')}
+                      {member.specialization}
                     </div>
                   </div>
                 </div>
@@ -99,13 +99,13 @@ const AllInternationalAdvisoryCommitteeMembers = () => {
 
                 <div className="mt-4 flex items-center gap-3">
                   <button
-                    onClick={() => handleDelete(member._id)}
+                    onClick={() => handleDelete(member.id)}
                     className="admin-button-danger w-full"
                   >
                     Delete
                   </button>
                   <button
-                    onClick={() => navigate(`/admin/all-international-members/${member._id}`)}
+                    onClick={() => navigate(`/admin/all-international-members/${member.id}`)}
                     className="admin-button-primary w-full"
                   >
                     Update

@@ -573,6 +573,9 @@ paths:
     post:
       tags: [Speaker]
       summary: Create speaker (with profile picture)
+      description: Requires Bearer token.
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -588,6 +591,12 @@ paths:
                 $ref: '#/components/schemas/CreateSpeakerResponse'
         '400':
           description: Missing required fields / no file uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
           content:
             application/json:
               schema:
@@ -633,6 +642,9 @@ paths:
     put:
       tags: [Speaker]
       summary: Update speaker (optional new profile picture)
+      description: Requires Bearer token.
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -648,6 +660,12 @@ paths:
                 $ref: '#/components/schemas/SuccessNoData'
         '400':
           description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
           content:
             application/json:
               schema:
@@ -668,6 +686,9 @@ paths:
     delete:
       tags: [Speaker]
       summary: Delete speaker by id
+      description: Requires Bearer token.
+      security:
+        - bearerAuth: []
       parameters:
         - in: path
           name: speakerId
@@ -682,6 +703,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SuccessNoData'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Speaker not found
           content:
@@ -706,6 +733,7 @@ paths:
           description: Committee name
           schema:
             type: string
+            enum: [organizing, technical, programme, international, industry]
         - in: query
           name: page
           schema:
@@ -741,6 +769,12 @@ paths:
     post:
       tags: [Committee]
       summary: Create committee member (with profile picture)
+      description: |
+        For organizing committee members (`committee=organizing`), `position` is required.
+        
+        Requires Bearer token.
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -756,6 +790,12 @@ paths:
                 $ref: '#/components/schemas/CreateCommitteeMemberResponse'
         '400':
           description: Missing required fields / invalid committee name / no file uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
           content:
             application/json:
               schema:
@@ -801,6 +841,9 @@ paths:
     put:
       tags: [Committee]
       summary: Update committee member (optional new profile picture)
+      description: Requires Bearer token.
+      security:
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -816,6 +859,12 @@ paths:
                 $ref: '#/components/schemas/SuccessNoData'
         '400':
           description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
           content:
             application/json:
               schema:
@@ -836,6 +885,9 @@ paths:
     delete:
       tags: [Committee]
       summary: Delete committee member by id
+      description: Requires Bearer token.
+      security:
+        - bearerAuth: []
       parameters:
         - in: path
           name: memberId
@@ -850,6 +902,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SuccessNoData'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Committee member not found
           content:
@@ -867,6 +925,9 @@ paths:
     get:
       tags: [Contact]
       summary: List contacts
+      description: Requires Bearer token.
+      security:
+        - bearerAuth: []
       parameters:
         - in: query
           name: page
@@ -887,6 +948,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ContactsListResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Internal Server Error
           content:
@@ -926,6 +993,9 @@ paths:
     delete:
       tags: [Contact]
       summary: Delete contact by id
+      description: Requires Bearer token.
+      security:
+        - bearerAuth: []
       parameters:
         - in: query
           name: contactId
@@ -940,6 +1010,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SuccessNoData'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Contact not found
           content:
@@ -957,6 +1033,9 @@ paths:
     get:
       tags: [Contact]
       summary: Get contact by id
+      description: Requires Bearer token.
+      security:
+        - bearerAuth: []
       parameters:
         - in: path
           name: contactId
@@ -971,6 +1050,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GetContactResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: Contact not found
           content:
@@ -1378,8 +1463,13 @@ components:
           type: string
         committee:
           type: string
+          enum: [organizing, technical, programme, international, industry]
         priority:
           type: integer
+        position:
+          type: string
+          nullable: true
+          description: Present for organizing committee members
         description:
           type: string
 
@@ -1422,6 +1512,10 @@ components:
           type: string
         committee:
           type: string
+          enum: [organizing, technical, programme, international, industry]
+        position:
+          type: string
+          description: Required when committee=organizing
         specialization:
           type: string
         description:
@@ -1441,12 +1535,15 @@ components:
           type: string
         committee:
           type: string
+          enum: [organizing, technical, programme, international, industry]
         specialization:
           type: string
         description:
           type: string
         priority:
           type: integer
+        position:
+          type: string
 
     CreateCommitteeMemberData:
       type: object
