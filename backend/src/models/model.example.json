@@ -1,0 +1,13 @@
+{
+  "rdbms": "postgresql",
+  "host": "127.0.0.1",
+  "port": 5432,
+  "dbname": "icnari_conference_db",
+  "user": "postgres",
+  "passwd": "postgres",
+  "tables": ["user","notification","gallery","contact","committee","speaker"],
+  "relationships": {
+      "enabled": false,
+      "items": []
+  }
+}
