@@ -57,20 +57,25 @@ void committee::createCommitteeMember(const HttpRequestPtr& req, std::function<v
     }
 }
 
-void committee::getCommitteeMembers(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback,std::string committee){
+void committee::getCommitteeMembers(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback){
     try
     {
+        auto queryParams=req->getParameters();
+
+        const auto committeeIt = queryParams.find("committee");
+        if (committeeIt == queryParams.end() || committeeIt->second.empty())
+            throw AppError("Missing required query parameter: committee", k400BadRequest);
+        const std::string committee = committeeIt->second;
+
         if(!CommitteeRepository::isValidCommittee(committee))
             throw AppError("Invalid committee name", k400BadRequest);
-        auto queryParams=req->getParameters();
+
         int page=1;
         int limit=10;
         if(queryParams.find("page")!=queryParams.end())
             page=std::stoi(queryParams["page"]);
         if(queryParams.find("limit")!=queryParams.end())
             limit=std::stoi(queryParams["limit"]);
-        if(!CommitteeRepository::isValidCommittee(committee))
-            throw AppError("Invalid committee name", k400BadRequest);
         auto members=CommitteeRepository::getCommitteeMembers(committee,page,limit);
         Json::Value response(Json::arrayValue);
         for(const auto& member:members){
@@ -89,6 +94,14 @@ void committee::getCommitteeMembers(const HttpRequestPtr& req, std::function<voi
             response.append(memberJson);
         }
         callback(Response::success(k200OK,"Committee members retrieved successfully",response));
+    }
+    catch (const std::invalid_argument&)
+    {
+        callback(Response::error(k400BadRequest, "Invalid page/limit"));
+    }
+    catch (const std::out_of_range&)
+    {
+        callback(Response::error(k400BadRequest, "Invalid page/limit"));
     }
     catch(const AppError& e)
     {

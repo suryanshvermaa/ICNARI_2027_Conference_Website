@@ -19,7 +19,7 @@ void SpeakerRepository::updateSpeaker(int id, const speakerStruct& s){
     if(s.specialization != "") speaker.setSpecialization(s.specialization);
     if(s.profile_picture_object_key != "") speaker.setProfilePictureObjectKey(s.profile_picture_object_key);
     if(s.description != "") speaker.setDescription(s.description);
-    if(s.priority) speaker.setPriority(s.priority);
+    speaker.setPriority(s.priority);
     mapper.update(speaker);
 }
 

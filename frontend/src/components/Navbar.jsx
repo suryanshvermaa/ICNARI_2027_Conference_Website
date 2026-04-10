@@ -183,15 +183,15 @@ export default function Navbar({ fetch, setfetch }) {
 
                       if (opt === "CMT Acknowledgement") {
                         return (
-                          <a
+                          <Link
                             key={i}
-                            href={`/${key}/${opt
+                            to={`/${key}/${opt
                               .toLowerCase()
-                              .replace(/\s+/g, "-")}.html`}
+                              .replace(/\s+/g, "-")}`}
                             className="block px-4 py-2 transition-colors hover:bg-zinc-50 dark:hover:bg-slate-800/60"
                           >
                             {opt}
-                          </a>
+                          </Link>
                         );
                       }
 
@@ -353,16 +353,16 @@ export default function Navbar({ fetch, setfetch }) {
 
                         if (opt === "CMT Acknowledgement") {
                           return (
-                            <a
+                            <Link
                               key={i}
-                              href={`/${key}/${opt
+                              to={`/${key}/${opt
                                 .toLowerCase()
-                                .replace(/\s+/g, "-")}.html`}
+                                .replace(/\s+/g, "-")}`}
                               className="rounded-md px-2 py-2 transition-colors hover:bg-zinc-50 dark:hover:bg-slate-800/60"
                               onClick={() => setIsOpen(false)}
                             >
                               {opt}
-                            </a>
+                            </Link>
                           );
                         }
 

@@ -13,7 +13,7 @@ void speaker::createSpeaker(const HttpRequestPtr& req, std::function<void (const
     {
         const auto speakerData = req->getJsonObject();
         if(!speakerData||!speakerData->isMember("name")){
-            throw AppError("Missing required fields: name and description", k400BadRequest);
+            throw AppError("Missing required fields: name", k400BadRequest);
         }
         speakerStruct newSpeaker;
         newSpeaker.name = (*speakerData)["name"].asString();

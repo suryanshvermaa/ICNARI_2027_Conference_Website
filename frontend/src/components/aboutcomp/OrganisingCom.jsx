@@ -84,44 +84,53 @@ const OrganisingCom = () => {
     return { role: match[1], description: match[2] };
   };
 
+  const buildCommitteeMembersByRole = (members) => {
+    const grouped = {};
+    roles.forEach((r) => {
+      grouped[r] = [];
+    });
+    grouped.Other = [];
+
+    for (const member of members || []) {
+      const { role } = extractRoleAndDescription(member);
+      const roleKey = roles.includes(role) ? role : "Other";
+      grouped[roleKey].push(member);
+    }
+
+    Object.keys(grouped).forEach((key) => {
+      grouped[key].sort((a, b) => {
+        const priorityA = a.priority || Number.MAX_SAFE_INTEGER;
+        const priorityB = b.priority || Number.MAX_SAFE_INTEGER;
+        return priorityA - priorityB;
+      });
+    });
+
+    return grouped;
+  };
+
   useEffect(() => {
     async function fetchAllCommitteeMembers() {
-      setLoading(true);
+      const cached = cookies.organisingCommitteeCache;
+      if (cached) {
+        setCommitteeMembers(cached);
+      }
+
+      // Only show the full-page loader if nothing is cached.
+      setLoading(!cached);
       try {
-        if (cookies.organisingCommitteeCache) {
-          setCommitteeMembers(cookies.organisingCommitteeCache);
-          setLoading(false);
-          return;
-        }
         const res = await axios.get(
           `${import.meta.env.VITE_API_URL}/api/v1/committee?committee=organizing&page=1&limit=1000`
         );
-        const updatedCommitteeMembers = { ...committeeMembers, Other: [] };
+        const updatedCommitteeMembers = buildCommitteeMembersByRole(res.data.data);
 
-        for (let member of res.data.data) {
-          const { role } = extractRoleAndDescription(member);
-          const roleKey = roles.includes(role) ? role : 'Other';
-          if (!updatedCommitteeMembers[roleKey]) {
-            updatedCommitteeMembers[roleKey] = [];
-          }
-          updatedCommitteeMembers[roleKey].push(member);
-        }
-        
-        // Sort members by priority within each committee
-        Object.keys(updatedCommitteeMembers).forEach(committee => {
-          updatedCommitteeMembers[committee].sort((a, b) => {
-            // Sort by priority (ascending order), members without priority go to the end
-            const priorityA = a.priority || Number.MAX_SAFE_INTEGER;
-            const priorityB = b.priority || Number.MAX_SAFE_INTEGER;
-            return priorityA - priorityB;
-          });
-        });
         setCookie('organisingCommitteeCache', updatedCommitteeMembers, { path: '/', maxAge: 86400 }); // Cache for 24 hours
         setCommitteeMembers(updatedCommitteeMembers);
-        setLoading(false);
       } catch {
+        if (!cached) {
+          alert('Failed to load committee members data');
+        }
+      } finally {
         setLoading(false);
-        alert('Failed to load committee members data');
       }
     }
     fetchAllCommitteeMembers();

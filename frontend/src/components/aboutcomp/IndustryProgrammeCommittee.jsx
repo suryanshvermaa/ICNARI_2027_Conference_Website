@@ -34,13 +34,15 @@ const IndustryProgrammeCommittee = () => {
   const [cookies, setCookie] = useCookies(['ipcMembersCache']);
   useEffect(() => {
     async function fetchAllCommitteeMembers() {
-      setLoading(true);
+      const cached = Array.isArray(cookies.ipcMembersCache) ? cookies.ipcMembersCache : null;
+      if (cached) {
+        setCommitteeMembers(cached);
+      }
+
+      // Only show the full-page loader if nothing is cached.
+      setLoading(!cached);
+
       try {
-        if(cookies.ipcMembersCache){
-          setCommitteeMembers(cookies.ipcMembersCache);
-          setLoading(false);
-          return;
-        }
         const res = await axios.get(
           `${import.meta.env.VITE_API_URL}/api/v1/committee?committee=industry&page=1&limit=1000`
         );
@@ -49,11 +51,13 @@ const IndustryProgrammeCommittee = () => {
           maxAge: 86400,
         }); // Cache for 1 day
         setCommitteeMembers(res.data.data);
-        setLoading(false);
       } catch (err) {
         console.error(err);
+        if (!cached) {
+          alert("Failed to load industry programme committee members data");
+        }
+      } finally {
         setLoading(false);
-        alert("Failed to load industry programme committee members data");
       }
     }
     fetchAllCommitteeMembers();

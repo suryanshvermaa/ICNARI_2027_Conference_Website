@@ -33,13 +33,18 @@ const InternationalAdvisoryCommittee = () => {
 
   useEffect(() => {
     async function fetchAllCommitteeMembers() {
-      setLoading(true);
+      const cached = Array.isArray(cookies.internationalCommitteeMembersCache)
+        ? cookies.internationalCommitteeMembersCache
+        : null;
+
+      if (cached) {
+        setCommitteeMembers(cached);
+      }
+
+      // Only show the full-page loader if nothing is cached.
+      setLoading(!cached);
+
       try {
-        if (cookies.internationalCommitteeMembersCache) {
-          setCommitteeMembers(cookies.internationalCommitteeMembersCache);
-          setLoading(false);
-          return;
-        }
         const res = await axios.get(
           `${import.meta.env.VITE_API_URL}/api/v1/committee?committee=international&page=1&limit=1000`
         );
@@ -48,10 +53,12 @@ const InternationalAdvisoryCommittee = () => {
           maxAge: 86400,
         }); // Cache for 1 day
         setCommitteeMembers(res.data.data);
-        setLoading(false);
       } catch {
+        if (!cached) {
+          alert("Failed to load international advisory committee members data");
+        }
+      } finally {
         setLoading(false);
-        alert("Failed to load international advisory committee members data");
       }
     }
     fetchAllCommitteeMembers();

@@ -2,6 +2,7 @@ build
 /config/config.json
 *.env
 ./db_data
-./uploads
+./uploads/*
+uploads
 /src/models/model.json
 /minio_data
