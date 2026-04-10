@@ -61,20 +61,32 @@ const UpdateSpeaker = () => {
     }
 
     try {
-      const formData = new FormData();
-      formData.append('name', speaker.name);
-      formData.append('specialization', speaker.specialization);
-      formData.append('description', speaker.description);
-      if (speaker.imageUrl !== prevImage && image) {
-        formData.append('file', image);
-      }
+      const isUploadingNewFile = speaker.imageUrl !== prevImage && image;
 
-      const response = await axios.put(`${import.meta.env.VITE_API_URL}/api/v1/speaker/${id}`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = isUploadingNewFile
+        ? await axios.put(`${import.meta.env.VITE_API_URL}/api/v1/speaker/${id}`, (() => {
+            const formData = new FormData();
+            formData.append('file', image);
+            return formData;
+          })(), {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              Authorization: `Bearer ${token}`,
+            },
+          })
+        : await axios.put(
+            `${import.meta.env.VITE_API_URL}/api/v1/speaker/${id}`,
+            {
+              name: speaker.name,
+              specialization: speaker.specialization,
+              description: speaker.description,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
       if (response?.data?.success) {
         setSpeaker({
           description: "",

@@ -72,30 +72,40 @@ const UpdateTechnicalMember = () => {
     }
 
     try {
-      const formData = new FormData();
-      if (image) {
-        formData.append('file', image);
-      }
-      formData.append('name', organisingMemberData.name);
-      formData.append('specialization', organisingMemberData.specialization);
-      formData.append('college', organisingMemberData.college);
-      formData.append('committee', 'programme');
-
       const combinedDescription = organisingMemberData.role
         ? `Role: ${organisingMemberData.role}\n${organisingMemberData.description}`
         : organisingMemberData.description;
-      formData.append('description', combinedDescription);
 
-      const response = await axios.put(
-        `${import.meta.env.VITE_API_URL}/api/v1/committee/${id}`,
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-            'Content-Type': 'multipart/form-data'
-          },
-        }
-      );
+      const response = image
+        ? await axios.put(
+            `${import.meta.env.VITE_API_URL}/api/v1/committee/${id}`,
+            (() => {
+              const formData = new FormData();
+              formData.append('file', image);
+              return formData;
+            })(),
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`,
+                'Content-Type': 'multipart/form-data',
+              },
+            }
+          )
+        : await axios.put(
+            `${import.meta.env.VITE_API_URL}/api/v1/committee/${id}`,
+            {
+              name: organisingMemberData.name,
+              specialization: organisingMemberData.specialization,
+              college: organisingMemberData.college,
+              committee: 'programme',
+              description: combinedDescription,
+            },
+            {
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`,
+              },
+            }
+          );
       console.log(response);
       toast.success(response.data.message || 'Committee member updated');
       setImage(null);

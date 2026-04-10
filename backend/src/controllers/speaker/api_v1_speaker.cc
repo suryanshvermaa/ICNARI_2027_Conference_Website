@@ -11,25 +11,45 @@ void speaker::createSpeaker(const HttpRequestPtr& req, std::function<void (const
 {
     try
     {
-        const auto speakerData = req->getJsonObject();
-        if(!speakerData||!speakerData->isMember("name")){
-            throw AppError("Missing required fields: name", k400BadRequest);
-        }
         speakerStruct newSpeaker;
-        newSpeaker.name = (*speakerData)["name"].asString();
-        if(speakerData->isMember("specialization")){
-            newSpeaker.specialization = (*speakerData)["specialization"].asString();
+        newSpeaker.priority = 0;
+
+        // Parse multipart first (browser uploads)
+        MultiPartParser fileParser;
+        fileParser.parse(req);
+
+        // Extract metadata from JSON if available; otherwise from multipart fields
+        const auto speakerData = req->getJsonObject();
+        if(speakerData && speakerData->isMember("name"))
+        {
+            newSpeaker.name = (*speakerData)["name"].asString();
+            if(speakerData->isMember("specialization")) newSpeaker.specialization = (*speakerData)["specialization"].asString();
+            if(speakerData->isMember("priority")) newSpeaker.priority = (*speakerData)["priority"].asInt();
+            if(speakerData->isMember("description")) newSpeaker.description = (*speakerData)["description"].asString();
         }
-        if(speakerData->isMember("priority")){
-            newSpeaker.priority = (*speakerData)["priority"].asInt();
-        }
-        if(speakerData->isMember("description")){
-            newSpeaker.description = (*speakerData)["description"].asString();
+        else
+        {
+            const auto params = fileParser.getParameters();
+            const auto nameIt = params.find("name");
+            if(nameIt == params.end() || nameIt->second.empty())
+                throw AppError("Missing required fields: name", k400BadRequest);
+            newSpeaker.name = nameIt->second;
+
+            const auto specIt = params.find("specialization");
+            if(specIt != params.end()) newSpeaker.specialization = specIt->second;
+
+            const auto descIt = params.find("description");
+            if(descIt != params.end()) newSpeaker.description = descIt->second;
+
+            const auto prIt = params.find("priority");
+            if(prIt != params.end() && !prIt->second.empty())
+            {
+                try { newSpeaker.priority = std::stoi(prIt->second); }
+                catch(...) { throw AppError("Invalid priority", k400BadRequest); }
+            }
         }
         
         // file handling
-        MultiPartParser fileParser;
-        fileParser.parse(req);
         if(fileParser.getFiles().empty())
             throw AppError("No file uploaded", k400BadRequest);
         size_t num_of_files = fileParser.getFiles().size();
@@ -139,27 +159,45 @@ void speaker::updateSpeaker(const HttpRequestPtr& req, std::function<void (const
 {
     try
     {
-        auto speakerData = req->getJsonObject();
-        if(!speakerData){
-            throw AppError("Invalid JSON data", k400BadRequest);
-        }
+        // Start from existing values to avoid uninitialized fields (priority)
+        const auto existingSpeaker = SpeakerRepository::getSpeakerById(speakerId);
+        if(existingSpeaker.id == 0) throw AppError("Speaker not found", k404NotFound);
+
         speakerStruct updatedSpeaker;
-        if(speakerData->isMember("name")){
-            updatedSpeaker.name = (*speakerData)["name"].asString();
-        }
-        if(speakerData->isMember("specialization")){
-            updatedSpeaker.specialization = (*speakerData)["specialization"].asString();
-        }
-        if(speakerData->isMember("description")){
-            updatedSpeaker.description = (*speakerData)["description"].asString();
-        }
-        if(speakerData->isMember("priority")){
-            updatedSpeaker.priority = (*speakerData)["priority"].asInt();
+        updatedSpeaker.name = "";
+        updatedSpeaker.specialization = "";
+        updatedSpeaker.profile_picture_object_key = "";
+        updatedSpeaker.description = "";
+        updatedSpeaker.priority = existingSpeaker.priority;
+
+        const auto speakerData = req->getJsonObject();
+        if(speakerData)
+        {
+            if(speakerData->isMember("name")) updatedSpeaker.name = (*speakerData)["name"].asString();
+            if(speakerData->isMember("specialization")) updatedSpeaker.specialization = (*speakerData)["specialization"].asString();
+            if(speakerData->isMember("description")) updatedSpeaker.description = (*speakerData)["description"].asString();
+            if(speakerData->isMember("priority")) updatedSpeaker.priority = (*speakerData)["priority"].asInt();
         }
         
         // file handling
         MultiPartParser fileParser;
         fileParser.parse(req);
+
+        // If this is a multipart request, allow metadata via form fields too
+        const auto params = fileParser.getParameters();
+        const auto nameIt = params.find("name");
+        if(nameIt != params.end()) updatedSpeaker.name = nameIt->second;
+        const auto specIt = params.find("specialization");
+        if(specIt != params.end()) updatedSpeaker.specialization = specIt->second;
+        const auto descIt = params.find("description");
+        if(descIt != params.end()) updatedSpeaker.description = descIt->second;
+        const auto prIt = params.find("priority");
+        if(prIt != params.end() && !prIt->second.empty())
+        {
+            try { updatedSpeaker.priority = std::stoi(prIt->second); }
+            catch(...) { throw AppError("Invalid priority", k400BadRequest); }
+        }
+
         if(!fileParser.getFiles().empty()){
             size_t num_of_files = fileParser.getFiles().size();
             if(num_of_files > 1)

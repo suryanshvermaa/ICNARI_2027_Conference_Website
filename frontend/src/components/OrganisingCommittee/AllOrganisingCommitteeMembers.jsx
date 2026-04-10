@@ -79,32 +79,10 @@ const AllOrganisingCommitteeMembers = () => {
       return;
     }
 
-    const member = organisingMembers.find((m) => m.id === id);
-    if (!member) {
-      toast.error('Member not found in list. Please refresh.');
-      return;
-    }
-
     try {
-      const formData = new FormData();
-      formData.append('priority', String(priorityNum));
-      formData.append('name', member.name);
-      formData.append('specialization', member.specialization);
-      formData.append('college', member.college);
-      formData.append('committee', member.committee);
-      if (member.position) {
-        formData.append('position', member.position);
-      } else {
-        const match = String(member.description || '').match(/^Role:\s*(.+?)\s*\n/);
-        if (match && match[1]) {
-          formData.append('position', match[1]);
-        }
-      }
-      formData.append('description', member.description);
-
       const response = await axios.put(
         `${import.meta.env.VITE_API_URL}/api/v1/committee/${id}`,
-        formData,
+        { priority: priorityNum },
         {
           headers: { Authorization: `Bearer ${token}` },
         }

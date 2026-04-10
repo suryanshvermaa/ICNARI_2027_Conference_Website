@@ -55,14 +55,15 @@ const AllSpeakers = () => {
 
     try {
       const priority = priorities[id];
-      const formData = new FormData();
-      formData.append('priority', String(priority ?? 0));
-      await axios.put(`${import.meta.env.VITE_API_URL}/api/v1/speaker/${id}`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      await axios.put(
+        `${import.meta.env.VITE_API_URL}/api/v1/speaker/${id}`,
+        { priority: Number(priority ?? 0) },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       toast.success('Priority updated successfully!');
       // Update the speaker in the state
       setSpeakers(speakers.map(speaker => 

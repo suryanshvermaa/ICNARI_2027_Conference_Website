@@ -34,10 +34,16 @@ void gallery::uploadImage(const HttpRequestPtr& req, std::function<void (const H
         auto file=fileParser.getFiles()[0];
         const std::string fileName=std::to_string(std::time(nullptr))+"_"+file.getFileName()+"_"; // to avoid name collision
         std::string imageObjectKey=putObject(fileName,file);
-        auto body=req->getJsonObject();
-        if(!body) throw AppError("Invalid JSON body", k400BadRequest);
-        std::string title=(*body)["title"].asString();
-        std::string tags=(*body)["tags"].asString();
+
+        const auto params = fileParser.getParameters();
+        const auto titleIt = params.find("title");
+        const auto tagsIt = params.find("tags");
+        if(titleIt == params.end() || titleIt->second.empty())
+            throw AppError("Missing required field: title", k400BadRequest);
+        if(tagsIt == params.end() || tagsIt->second.empty())
+            throw AppError("Missing required field: tags", k400BadRequest);
+        std::string title = titleIt->second;
+        std::string tags = tagsIt->second;
         int id=GalleryRepository::createGallery(title, stringSplit(tags, ','), imageObjectKey);
         if(id==0) throw AppError("Failed to create gallery", k500InternalServerError);
         Json::Value res;
