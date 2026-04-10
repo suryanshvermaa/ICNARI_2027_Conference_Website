@@ -18,11 +18,11 @@ void auth::login(const HttpRequestPtr& req, std::function<void (const HttpRespon
         user u=UserRepository::getUserByEmail(email);
         if(u.id == 0)
             throw AppError("User not found", k404NotFound);
-        if(!Auth::comparePassword(password,u.passwordHash))
+        if(!Auth::comparePassword(password,u.password))
             throw AppError("Invalid password", k400BadRequest);
 
         Json::Value response;
-        response["token"] = Auth::createToken(u.id,u.role);
+        response["token"] = Auth::createToken(u.id);
         response["user_id"] = u.id;
         response["name"] = u.name;
         response["email"] = u.email;

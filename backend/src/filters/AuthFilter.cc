@@ -38,7 +38,6 @@ void AuthFilter::doFilter(const HttpRequestPtr &req,
     if (decodedData.userId>0)
     {
         req->setParameter("userId",std::to_string(decodedData.userId));
-        req->setParameter("role",decodedData.role);
         fccb();
         return;
     }

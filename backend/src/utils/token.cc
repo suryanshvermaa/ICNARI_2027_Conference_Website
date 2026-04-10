@@ -6,13 +6,12 @@
 #include<iomanip>
 
 
-std::string Auth::createToken(const int userId,const std::string &role){
+std::string Auth::createToken(const int userId){
     std::string token=jwt::create()
     .set_issuer("suryansh")
     .set_type("JWS")
     .set_expires_at(std::chrono::system_clock::now()+std::chrono::hours{24})
     .set_payload_claim("userId",jwt::claim(std::to_string(userId)))
-    .set_payload_claim("role",jwt::claim(role))
     .sign(jwt::algorithm::hs256{std::getenv("JWT_SECRET")});
     
     return token;
@@ -28,13 +27,12 @@ data Auth::decodeAndverifyToken(const std::string &token){
         .allow_algorithm(jwt::algorithm::hs256{std::getenv("JWT_SECRET")});
 
         verifier.verify(decodedToken);
-        const std::string role=decodedToken.get_payload_claim("role").as_string();
         const std::string userId=decodedToken.get_payload_claim("userId").as_string();
-        return {std::stoi(userId),role};
+        return {std::stoi(userId)};
     }
     catch(const std::exception& e)
     {
-        return {0,""};
+        return {0};
     }
 }
 
