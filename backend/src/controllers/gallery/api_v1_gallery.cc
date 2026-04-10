@@ -24,12 +24,20 @@ void gallery::uploadImage(const HttpRequestPtr& req, std::function<void (const H
 {
     try
     {
+        MultiPartParser fileParser;
+        fileParser.parse(req);
+        if(fileParser.getFiles().empty())
+            throw AppError("No file uploaded", k400BadRequest);
+        size_t num_of_files = fileParser.getFiles().size();
+        if(num_of_files > 1)
+            throw AppError("Multiple files uploaded. Only one file is allowed.", k400BadRequest);
+        auto file=fileParser.getFiles()[0];
+        const std::string fileName=file.getFileName()+"_"+std::to_string(std::time(nullptr)); // to avoid name collision
+        std::string imageObjectKey=putObject(fileName,file);
         auto body=req->getJsonObject();
         if(!body) throw AppError("Invalid JSON body", k400BadRequest);
         std::string title=(*body)["title"].asString();
         std::string tags=(*body)["tags"].asString();
-        std::string imageObjectUrl=(*body)["imageObjectKey"].asString();
-        std::string imageObjectKey=urlToKey(imageObjectUrl);
         int id=GalleryRepository::createGallery(title, stringSplit(tags, ','), imageObjectKey);
         if(id==0) throw AppError("Failed to create gallery", k500InternalServerError);
         Json::Value res;
@@ -52,6 +60,9 @@ void gallery::deleteImage(const HttpRequestPtr& req, std::function<void (const H
 {
     try
     {
+        galleryStruct gal=GalleryRepository::getGalleryById(id);
+        if(gal.id==0) throw AppError("Gallery not found", k404NotFound);
+        deleteObject(gal.imageObjectKey);
         bool deleted=GalleryRepository::deleteGallery(id);
         if(!deleted) throw AppError("Gallery not found", k404NotFound);
         callback(Response::success(k200OK,"Gallery deleted successfully"));
@@ -85,7 +96,7 @@ void gallery::getImages(const HttpRequestPtr& req, std::function<void (const Htt
             imgJson["title"]=img.title;
             imgJson["tags"]=Json::arrayValue;
             for(const auto& tag:img.tags) imgJson["tags"].append(tag);
-            imgJson["imageUrl"]=img.imageUrl;
+            imgJson["imageUrl"]=getSignedUrl(img.imageObjectKey);
             res.append(imgJson);
         }
         callback(Response::success(k200OK,"Galleries fetched successfully",res));
@@ -113,7 +124,7 @@ void gallery::getImage(const HttpRequestPtr& req, std::function<void (const Http
         res["title"]=image.title;
         res["tags"]=Json::arrayValue;
         for(const auto& tag:image.tags) res["tags"].append(tag);
-        res["imageUrl"]=image.imageUrl;
+        res["imageUrl"]=getSignedUrl(image.imageObjectKey);
         res["createdAt"]=image.createdAt;
         callback(Response::success(k200OK,"Gallery fetched successfully",res));
     }

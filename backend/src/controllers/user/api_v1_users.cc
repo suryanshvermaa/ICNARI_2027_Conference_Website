@@ -24,7 +24,6 @@ void users::getUser(const HttpRequestPtr& req, std::function<void (const HttpRes
         response["id"]=u.id;
         response["name"]=u.name;
         response["email"]=u.email;
-        response["role"]=u.role;
         callback(Response::success(k200OK,"User retrieved successfully",response));
     }
     catch(const AppError& e)
@@ -57,11 +56,9 @@ void users::updateUser(const HttpRequestPtr& req, std::function<void (const Http
         if(reqBody->isMember("email"))
             u.email=(*reqBody)["email"].asString();
         if(reqBody->isMember("password"))
-            u.passwordHash=Auth::getHashPassword((*reqBody)["password"].asString());
-        if(reqBody->isMember("role"))
-            u.role=(*reqBody)["role"].asString();
+            u.password=Auth::getHashPassword((*reqBody)["password"].asString());
         if(reqBody->isMember("profilePicture"))
-            u.profilePictureUrl=(*reqBody)["profilePicture"].asString();
+            u.profile_picture_object_key=(*reqBody)["profilePicture"].asString();
         
         if(!UserRepository::updateUser(userId,u))
             throw AppError("Failed to update user", k500InternalServerError);
@@ -104,15 +101,24 @@ void users::deleteUser(const HttpRequestPtr& req, std::function<void (const Http
 void users::uploadProfilePicture(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback){
     try
     {
+        MultiPartParser fileParser;
+        fileParser.parse(req);
+        if(fileParser.getFiles().empty())
+            throw AppError("No file uploaded", k400BadRequest);
+        size_t num_of_files = fileParser.getFiles().size();
+        if(num_of_files > 1)
+            throw AppError("Multiple files uploaded. Only one file is allowed.", k400BadRequest);
+        
+        // upload file to S3 and get the object key
         auto id=req->getParameter("userId");
-        auto body=req->getJsonObject();
-        if(id.empty())
-            throw AppError("User ID is required", k400BadRequest);
-        Json::Value resBody;
-        const std::string extOfFile=(*body)["file_extension"].asString();
-        const std::string key="profile_pictures/user_"+id+"."+extOfFile;
-        resBody["upload_url"] = putObjectSignedUrl(key);
-        callback(Response::success(k200OK,"Profile picture upload URL generated successfully",resBody));
+        if(id.empty())  throw AppError("User ID is required", k400BadRequest);
+        int userId=std::stoi(id);
+        auto file=fileParser.getFiles()[0];
+        const std::string fileName=file.getFileName()+"_"+id; // to avoid name collision
+        std::string objectKey=putObject(fileName,file);
+        // update user profile picture
+        UserRepository::updateUser(userId, user{.profile_picture_object_key=objectKey});
+        callback(Response::success(k200OK,"Profile picture uploaded successfully"));
     }
     catch(const AppError& e)
     {
