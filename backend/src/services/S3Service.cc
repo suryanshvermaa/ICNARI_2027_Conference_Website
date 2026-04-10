@@ -1,4 +1,4 @@
-#include "../config/AwsConfig.h"
+#include "../config/aws_config.h"
 #include "S3Service.h"
 
 #include <aws/core/utils/memory/stl/AWSStringStream.h>

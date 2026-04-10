@@ -15,9 +15,9 @@ class notifications : public drogon::HttpController<notifications>
 
     METHOD_ADD(notifications::getNotifications, "", Get); // path is /api/v1/notifications?page=1&limit=10&type=HIGHLIGHTS
     METHOD_ADD(notifications::getNotification, "/{id}", Get); // path is /
-    METHOD_ADD(notifications::createNotification, "", Post,"AuthFilter","AdminFilter"); // path is /api/v1/notifications
-    METHOD_ADD(notifications::updateNotification, "/{id}", Put,"AuthFilter","AdminFilter"); // path is /api/v1/notifications/{id}
-    METHOD_ADD(notifications::deleteNotification, "/{id}", Delete,"AuthFilter","AdminFilter"); // path is /
+    METHOD_ADD(notifications::createNotification, "", Post,"AuthFilter"); // path is /api/v1/notifications
+    METHOD_ADD(notifications::updateNotification, "/{id}", Put,"AuthFilter"); // path is /api/v1/notifications/{id}
+    METHOD_ADD(notifications::deleteNotification, "/{id}", Delete,"AuthFilter"); // path is /
 
     METHOD_LIST_END
     void getNotifications(const HttpRequestPtr& req, std::function<void (const HttpResponsePtr &)> &&callback);

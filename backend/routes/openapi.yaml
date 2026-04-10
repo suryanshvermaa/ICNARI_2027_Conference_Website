@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: IEEE Conference Backend API
+  title: ICNARI Conference Backend API
   version: 1.0.0
   description: |
     Drogon C++ backend API.
@@ -31,11 +31,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SuccessNoData'
-              examples:
-                ok:
-                  value:
-                    success: true
-                    message: heathy
 
   /api/v1/auth/login:
     post:
@@ -47,11 +42,6 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/LoginRequest'
-            examples:
-              example:
-                value:
-                  email: user@example.com
-                  password: secret
       responses:
         '200':
           description: Login successful
@@ -60,219 +50,13 @@ paths:
               schema:
                 $ref: '#/components/schemas/LoginResponse'
         '400':
-          description: Validation error / invalid password / invalid request
+          description: Email/password missing or invalid password
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
         '404':
           description: User not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /api/v1/auth/signup:
-    post:
-      tags: [Auth]
-      summary: Signup
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SignupRequest'
-      responses:
-        '201':
-          description: Signup successful
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SignupResponse'
-        '400':
-          description: Validation error / email already in use
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          description: Failed to create user
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /api/v1/auth/firebase/login:
-    post:
-      tags: [Auth]
-      summary: Firebase login
-      description: |
-        Logs in a Firebase-authenticated user.
-        The backend expects an `idToken` from Firebase in the `token` field.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/FirebaseAuthRequest'
-            examples:
-              example:
-                value:
-                  token: eyJhbGciOi...
-      responses:
-        '200':
-          description: Firebase login successful
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/LoginResponse'
-        '400':
-          description: Validation error / invalid request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '401':
-          description: Invalid Firebase token
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          description: User not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /api/v1/auth/firebase/signup:
-    post:
-      tags: [Auth]
-      summary: Firebase signup
-      description: |
-        Creates a user using Firebase identity.
-        The backend expects an `idToken` from Firebase in the `token` field.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/FirebaseAuthRequest'
-            examples:
-              example:
-                value:
-                  token: eyJhbGciOi...
-      responses:
-        '201':
-          description: Firebase signup successful
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/FirebaseSignupResponse'
-        '400':
-          description: Validation error / user already exists / invalid request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '401':
-          description: Invalid Firebase token
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          description: Failed to create user
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /api/v1/users:
-    get:
-      tags: [Users]
-      summary: List users
-      description: |
-        Returns a paginated list (admin only).
-
-        Note: current implementation rejects `limit >= 20`.
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: query
-          name: page
-          schema:
-            type: integer
-            minimum: 1
-            default: 1
-        - in: query
-          name: limit
-          schema:
-            type: integer
-            minimum: 1
-            maximum: 19
-            default: 10
-      responses:
-        '200':
-          description: Users retrieved successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UsersListResponse'
-        '401':
-          description: Unauthorized (missing/invalid token or not an admin)
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '400':
-          description: Invalid request / invalid limit
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-    put:
-      tags: [Users]
-      summary: Update current user (from JWT)
-      description: |
-        Requires Bearer token. The backend reads `userId` from the JWT and updates that user.
-
-        Note: although the backend accepts `role` in the payload, there is no explicit role authorization in this handler.
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateUserRequest'
-            examples:
-              example:
-                value:
-                  name: New Name
-                  password: newPassword
-      responses:
-        '200':
-          description: User updated successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SuccessNoData'
-        '400':
-          description: Invalid request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          description: Failed to update user
           content:
             application/json:
               schema:
@@ -309,11 +93,50 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /api/v1/users:
+    put:
+      tags: [Users]
+      summary: Update current user (from JWT)
+      description: Requires Bearer token (AuthFilter sets `userId` on the request).
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessNoData'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Failed to update user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
   /api/v1/users/{id}:
     delete:
       tags: [Users]
       summary: Delete user by id
-      description: Admin only.
+      description: Requires Bearer token.
       security:
         - bearerAuth: []
       parameters:
@@ -343,20 +166,174 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /api/v1/users/makeAdmin:
+  /api/v1/users/uploadProfilePicture:
     post:
       tags: [Users]
-      summary: Promote current user to admin
-      description: |
-        Admin only.
-
-        As implemented, this endpoint promotes the *current JWT user* (from `AuthFilter`) to role `admin`.
-        It does not accept a target user id.
+      summary: Upload profile picture
+      description: Requires Bearer token.
       security:
         - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProfilePictureUploadRequest'
       responses:
         '200':
-          description: Role updated successfully
+          description: Profile picture uploaded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessNoData'
+        '400':
+          description: No file uploaded / invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/notifications:
+    get:
+      tags: [Notifications]
+      summary: List notifications
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            default: 10
+        - in: query
+          name: type
+          description: Notification type
+          schema:
+            type: string
+            enum: [HIGHLIGHTS, RECENT_UPDATES]
+            default: RECENT_UPDATES
+      responses:
+        '200':
+          description: Notifications retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationsListResponse'
+        '404':
+          description: Invalid notification type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags: [Notifications]
+      summary: Create notification
+      description: Requires Bearer token.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateNotificationRequest'
+      responses:
+        '201':
+          description: Notification created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateNotificationResponse'
+        '400':
+          description: Missing required fields / invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Failed to create notification
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/notifications/{id}:
+    get:
+      tags: [Notifications]
+      summary: Get notification by id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Notification retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetNotificationResponse'
+        '404':
+          description: Notification not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    put:
+      tags: [Notifications]
+      summary: Update notification
+      description: Requires Bearer token.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateNotificationRequest'
+      responses:
+        '200':
+          description: Notification updated successfully
           content:
             application/json:
               schema:
@@ -367,8 +344,53 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          description: User not found or failed to update role
+        '500':
+          description: Failed to update notification
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    delete:
+      tags: [Notifications]
+      summary: Delete notification
+      description: Requires Bearer token.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Notification deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessNoData'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Failed to delete notification
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '400':
+          description: Invalid request
           content:
             application/json:
               schema:
@@ -439,7 +461,7 @@ paths:
     delete:
       tags: [Gallery]
       summary: Delete gallery image by id
-      description: Admin only.
+      description: Requires Bearer token.
       security:
         - bearerAuth: []
       parameters:
@@ -475,52 +497,19 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
-  /api/v1/gallery/image/signed-url:
-    post:
-      tags: [Gallery]
-      summary: Generate pre-signed upload URL for a gallery image
-      description: Admin only.
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/GallerySignedUrlRequest'
-      responses:
-        '200':
-          description: Image signed Url generated
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GallerySignedUrlResponse'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '400':
-          description: Invalid request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
   /api/v1/gallery/image:
     post:
       tags: [Gallery]
-      summary: Create a gallery entry
-      description: Admin only.
+      summary: Upload image and create a gallery entry
+      description: Requires Bearer token.
       security:
         - bearerAuth: []
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
-              $ref: '#/components/schemas/GalleryCreateRequest'
+              $ref: '#/components/schemas/GalleryUploadRequest'
       responses:
         '200':
           description: Gallery created successfully
@@ -542,239 +531,6 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
         '500':
           description: Failed to create gallery
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /api/v1/users/uploadProfilePicture:
-    post:
-      tags: [Users]
-      summary: Generate pre-signed S3 upload URL for profile picture
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UploadProfilePictureRequest'
-            examples:
-              example:
-                value:
-                  file_extension: png
-      responses:
-        '200':
-          description: Upload URL generated
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/UploadProfilePictureResponse'
-        '400':
-          description: Invalid request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /api/v1/notifications:
-    get:
-      tags: [Notifications]
-      summary: List notifications
-      parameters:
-        - in: query
-          name: page
-          schema:
-            type: integer
-            minimum: 1
-            default: 1
-        - in: query
-          name: limit
-          schema:
-            type: integer
-            minimum: 1
-            default: 10
-        - in: query
-          name: type
-          description: Notification type
-          schema:
-            type: string
-            enum: [HIGHLIGHTS, RECENT_UPDATES]
-            default: RECENT_UPDATES
-      responses:
-        '200':
-          description: Notifications retrieved successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NotificationsListResponse'
-        '404':
-          description: Invalid notification type
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '400':
-          description: Invalid request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-    post:
-      tags: [Notifications]
-      summary: Create notification
-      description: Admin only.
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CreateNotificationRequest'
-      responses:
-        '201':
-          description: Notification created successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CreateNotificationResponse'
-        '400':
-          description: Missing required fields / invalid request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          description: Failed to create notification
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-  /api/v1/notifications/{id}:
-    get:
-      tags: [Notifications]
-      summary: Get notification by id
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: integer
-            minimum: 1
-      responses:
-        '200':
-          description: Notification retrieved successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GetNotificationResponse'
-        '404':
-          description: Notification not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '400':
-          description: Invalid request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-    put:
-      tags: [Notifications]
-      summary: Update notification
-      description: Admin only.
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: integer
-            minimum: 1
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/UpdateNotificationRequest'
-      responses:
-        '200':
-          description: Notification updated successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SuccessNoData'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          description: Failed to update notification
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '400':
-          description: Invalid request
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-
-    delete:
-      tags: [Notifications]
-      summary: Delete notification
-      description: Admin only.
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: integer
-            minimum: 1
-      responses:
-        '200':
-          description: Notification deleted successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SuccessNoData'
-        '401':
-          description: Unauthorized
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          description: Failed to delete notification
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '400':
-          description: Invalid request
           content:
             application/json:
               schema:
@@ -819,41 +575,19 @@ components:
           type: string
           minLength: 1
 
-    SignupRequest:
-      type: object
-      required: [name, email, password]
-      properties:
-        name:
-          type: string
-          minLength: 1
-        email:
-          type: string
-          format: email
-        password:
-          type: string
-          minLength: 1
-
-    FirebaseAuthRequest:
-      type: object
-      required: [token]
-      properties:
-        token:
-          type: string
-          description: Firebase ID token
-
-    AuthUserData:
+    LoginData:
       type: object
       required: [token, user_id, name, email]
       properties:
         token:
           type: string
-          description: JWT token
         user_id:
           type: integer
         name:
           type: string
         email:
           type: string
+          format: email
 
     LoginResponse:
       type: object
@@ -864,52 +598,12 @@ components:
           example: true
         message:
           type: string
-          example: Login successful
         data:
-          $ref: '#/components/schemas/AuthUserData'
-
-    SignupResponse:
-      type: object
-      required: [success, message, data]
-      properties:
-        success:
-          type: boolean
-          example: true
-        message:
-          type: string
-          example: Signup successful
-        data:
-          $ref: '#/components/schemas/AuthUserData'
-
-    FirebaseSignupData:
-      type: object
-      required: [token, user_id, email]
-      properties:
-        token:
-          type: string
-          description: JWT token
-        user_id:
-          type: integer
-        email:
-          type: string
-          format: email
-
-    FirebaseSignupResponse:
-      type: object
-      required: [success, message, data]
-      properties:
-        success:
-          type: boolean
-          example: true
-        message:
-          type: string
-          example: Firebase signup successful
-        data:
-          $ref: '#/components/schemas/FirebaseSignupData'
+          $ref: '#/components/schemas/LoginData'
 
     UserPublic:
       type: object
-      required: [id, name, email, role]
+      required: [id, name, email]
       properties:
         id:
           type: integer
@@ -918,22 +612,6 @@ components:
         email:
           type: string
           format: email
-        role:
-          type: string
-
-    UsersListResponse:
-      type: object
-      required: [success, message, data]
-      properties:
-        success:
-          type: boolean
-          example: true
-        message:
-          type: string
-        data:
-          type: array
-          items:
-            $ref: '#/components/schemas/UserPublic'
 
     GetUserResponse:
       type: object
@@ -949,7 +627,6 @@ components:
 
     UpdateUserRequest:
       type: object
-      description: All fields are optional; send only what you want to update.
       properties:
         name:
           type: string
@@ -958,41 +635,16 @@ components:
           format: email
         password:
           type: string
-        role:
-          type: string
         profilePicture:
           type: string
-          description: Profile picture URL (if you store it client-side); not used in the upload URL endpoint.
 
-    UploadProfilePictureRequest:
+    ProfilePictureUploadRequest:
       type: object
-      required: [file_extension]
+      required: [file]
       properties:
-        file_extension:
+        file:
           type: string
-          description: File extension without dot (e.g. png, jpg)
-          example: png
-
-    UploadProfilePictureData:
-      type: object
-      required: [upload_url]
-      properties:
-        upload_url:
-          type: string
-          format: uri
-          description: Pre-signed HTTP PUT URL to upload the file
-
-    UploadProfilePictureResponse:
-      type: object
-      required: [success, message, data]
-      properties:
-        success:
-          type: boolean
-          example: true
-        message:
-          type: string
-        data:
-          $ref: '#/components/schemas/UploadProfilePictureData'
+          format: binary
 
     Notification:
       type: object
@@ -1013,7 +665,6 @@ components:
           type: integer
         createdAt:
           type: string
-          description: Stored as string by backend
 
     NotificationsListResponse:
       type: object
@@ -1068,11 +719,10 @@ components:
           type: string
         data:
           type: integer
-          description: Newly created notification id
+          description: Created notification id
 
     UpdateNotificationRequest:
       type: object
-      description: All fields are optional; send only what you want to update.
       properties:
         title:
           type: string
@@ -1100,17 +750,6 @@ components:
             type: string
         imageUrl:
           type: string
-          description: Public URL or CDN URL returned by backend
-
-    GalleryItemWithCreatedAt:
-      allOf:
-        - $ref: '#/components/schemas/GalleryItem'
-        - type: object
-          required: [createdAt]
-          properties:
-            createdAt:
-              type: string
-              description: Stored as string by backend
 
     GalleryListResponse:
       type: object
@@ -1126,6 +765,15 @@ components:
           items:
             $ref: '#/components/schemas/GalleryItem'
 
+    GalleryGetData:
+      allOf:
+        - $ref: '#/components/schemas/GalleryItem'
+        - type: object
+          required: [createdAt]
+          properties:
+            createdAt:
+              type: string
+
     GalleryGetResponse:
       type: object
       required: [success, message, data]
@@ -1136,49 +784,20 @@ components:
         message:
           type: string
         data:
-          $ref: '#/components/schemas/GalleryItemWithCreatedAt'
+          $ref: '#/components/schemas/GalleryGetData'
 
-    GallerySignedUrlRequest:
+    GalleryUploadRequest:
       type: object
-      required: [title]
+      required: [file, title, tags]
       properties:
-        title:
+        file:
           type: string
-          description: Used as the base filename; backend appends a timestamp
-
-    GallerySignedUrlData:
-      type: object
-      required: [signedUrl]
-      properties:
-        signedUrl:
-          type: string
-          format: uri
-          description: Pre-signed HTTP PUT URL
-
-    GallerySignedUrlResponse:
-      type: object
-      required: [success, message, data]
-      properties:
-        success:
-          type: boolean
-          example: true
-        message:
-          type: string
-        data:
-          $ref: '#/components/schemas/GallerySignedUrlData'
-
-    GalleryCreateRequest:
-      type: object
-      required: [title, tags, imageObjectKey]
-      properties:
+          format: binary
         title:
           type: string
         tags:
           type: string
-          description: Comma-separated tags (e.g. "tag1,tag2")
-        imageObjectKey:
-          type: string
-          description: S3 object key or full S3/S3-compatible URL
+          description: Comma-separated list (e.g. "a,b,c")
 
     GalleryCreateData:
       type: object
@@ -1186,7 +805,6 @@ components:
       properties:
         id:
           type: integer
-          description: Newly created gallery id
 
     GalleryCreateResponse:
       type: object

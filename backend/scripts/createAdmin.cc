@@ -120,18 +120,13 @@ int main(int argc, char **argv) {
     }
 
     const std::string passwordHash = Auth::getHashPassword(password);
-    const std::string role = "admin";
 
-    // NOTE: Use the correct column name in your DB.
-    // If your table column is passwordHash (camelCase), use "passwordHash".
-    // If it's password_hash (snake_case), keep password_hash.
     auto r = db->execSqlSync(
-        "INSERT INTO users (email, username, password_hash, role) "
-        "VALUES ($1, $2, $3, $4)",
-        email, username, passwordHash, role);
+        "INSERT INTO users (email, name, password) "
+        "VALUES ($1, $2, $3)",
+        email, username, passwordHash);
 
-    std::cout << "User created: " << email << " (role=" << role
-              << "), rows=" << r.affectedRows() << "\n";
+    std::cout << "User created: " << email << ", rows=" << r.affectedRows() << "\n";
     return 0;
 
   } catch (const drogon::orm::DrogonDbException &e) {
