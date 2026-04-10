@@ -32,7 +32,7 @@ void gallery::uploadImage(const HttpRequestPtr& req, std::function<void (const H
         if(num_of_files > 1)
             throw AppError("Multiple files uploaded. Only one file is allowed.", k400BadRequest);
         auto file=fileParser.getFiles()[0];
-        const std::string fileName=file.getFileName()+"_"+std::to_string(std::time(nullptr)); // to avoid name collision
+        const std::string fileName=std::to_string(std::time(nullptr))+"_"+file.getFileName()+"_"; // to avoid name collision
         std::string imageObjectKey=putObject(fileName,file);
         auto body=req->getJsonObject();
         if(!body) throw AppError("Invalid JSON body", k400BadRequest);

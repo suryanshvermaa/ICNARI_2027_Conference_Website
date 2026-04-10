@@ -24,6 +24,7 @@ void users::getUser(const HttpRequestPtr& req, std::function<void (const HttpRes
         response["id"]=u.id;
         response["name"]=u.name;
         response["email"]=u.email;
+        response["profilePicture"]=getSignedUrl(u.profile_picture_object_key);
         callback(Response::success(k200OK,"User retrieved successfully",response));
     }
     catch(const AppError& e)
@@ -114,7 +115,7 @@ void users::uploadProfilePicture(const HttpRequestPtr& req, std::function<void (
         if(id.empty())  throw AppError("User ID is required", k400BadRequest);
         int userId=std::stoi(id);
         auto file=fileParser.getFiles()[0];
-        const std::string fileName=file.getFileName()+"_"+id; // to avoid name collision
+        const std::string fileName=id+"_"+file.getFileName(); // to avoid name collision
         std::string objectKey=putObject(fileName,file);
         // update user profile picture
         UserRepository::updateUser(userId, user{.profile_picture_object_key=objectKey});

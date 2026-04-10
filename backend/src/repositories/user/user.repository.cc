@@ -107,10 +107,9 @@ bool UserRepository::updateUser(int id,const user& u){
     {
         Mapper<Users> mapper(Database::getClient());
         auto dbUser=mapper.findByPrimaryKey(id);
-        dbUser.setName(u.name);
-        dbUser.setEmail(u.email);
-        dbUser.setPassword(u.password);
-        if(u.profile_picture_object_key != "") dbUser.setProfilePictureObjectKey(u.profile_picture_object_key);
+        if(u.name!="") dbUser.setName(u.name);
+        if(u.profile_picture_object_key!="") dbUser.setProfilePictureObjectKey(u.profile_picture_object_key);
+        if(u.password!="") dbUser.setPassword(u.password);
         mapper.update(dbUser);
         return true;
     }
