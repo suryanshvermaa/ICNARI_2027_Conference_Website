@@ -18,12 +18,12 @@ add_executable(ICNARI_Conference_Backend
     ./src/controllers/gallery/api_v1_gallery.cc
 
     # # models
-    ./src/models/User.cc
-    ./src/models/Notification.cc
+    ./src/models/Users.cc
+    ./src/models/Notifications.cc
     ./src/models/Gallery.cc
     ./src/models/Committee.cc
-    ./src/models/Contact.cc
-    ./src/models/Speaker.cc
+    ./src/models/Contacts.cc
+    ./src/models/Speakers.cc
 
     # filters
     ./src/filters/AuthFilter.cc

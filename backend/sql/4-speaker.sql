@@ -1,4 +1,4 @@
-CREATE TABLE speaker (
+CREATE TABLE speakers (
     id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     specialization VARCHAR(255),

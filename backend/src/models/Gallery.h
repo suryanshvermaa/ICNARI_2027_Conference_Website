@@ -43,14 +43,19 @@ class Gallery
   public:
     struct Cols
     {
+        static const std::string _id;
+        static const std::string _title;
+        static const std::string _image_object_key;
+        static const std::string _tags;
+        static const std::string _created_at;
     };
 
     const static int primaryKeyNumber;
     const static std::string tableName;
     const static bool hasPrimaryKey;
     const static std::string primaryKeyName;
-    using PrimaryKeyType = void;
-    int getPrimaryKey() const { assert(false); return 0; }
+    using PrimaryKeyType = int32_t;
+    const PrimaryKeyType &getPrimaryKey() const;
 
     /**
      * @brief constructor
@@ -94,8 +99,53 @@ class Gallery
                           std::string &err,
                           bool isForCreation);
 
+    /**  For column id  */
+    ///Get the value of the column id, returns the default value if the column is null
+    const int32_t &getValueOfId() const noexcept;
+    ///Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object if the column is null
+    const std::shared_ptr<int32_t> &getId() const noexcept;
+    ///Set the value of the column id
+    void setId(const int32_t &pId) noexcept;
 
-    static size_t getColumnNumber() noexcept {  return 0;  }
+    /**  For column title  */
+    ///Get the value of the column title, returns the default value if the column is null
+    const std::string &getValueOfTitle() const noexcept;
+    ///Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object if the column is null
+    const std::shared_ptr<std::string> &getTitle() const noexcept;
+    ///Set the value of the column title
+    void setTitle(const std::string &pTitle) noexcept;
+    void setTitle(std::string &&pTitle) noexcept;
+
+    /**  For column image_object_key  */
+    ///Get the value of the column image_object_key, returns the default value if the column is null
+    const std::string &getValueOfImageObjectKey() const noexcept;
+    ///Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object if the column is null
+    const std::shared_ptr<std::string> &getImageObjectKey() const noexcept;
+    ///Set the value of the column image_object_key
+    void setImageObjectKey(const std::string &pImageObjectKey) noexcept;
+    void setImageObjectKey(std::string &&pImageObjectKey) noexcept;
+
+    /**  For column tags  */
+    ///Get the value of the column tags, returns the default value if the column is null
+    const std::string &getValueOfTags() const noexcept;
+    ///Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object if the column is null
+    const std::shared_ptr<std::string> &getTags() const noexcept;
+    ///Set the value of the column tags
+    void setTags(const std::string &pTags) noexcept;
+    void setTags(std::string &&pTags) noexcept;
+    void setTagsToNull() noexcept;
+
+    /**  For column created_at  */
+    ///Get the value of the column created_at, returns the default value if the column is null
+    const ::trantor::Date &getValueOfCreatedAt() const noexcept;
+    ///Return a shared_ptr object pointing to the column const value, or an empty shared_ptr object if the column is null
+    const std::shared_ptr<::trantor::Date> &getCreatedAt() const noexcept;
+    ///Set the value of the column created_at
+    void setCreatedAt(const ::trantor::Date &pCreatedAt) noexcept;
+    void setCreatedAtToNull() noexcept;
+
+
+    static size_t getColumnNumber() noexcept {  return 5;  }
     static const std::string &getColumnName(size_t index) noexcept(false);
 
     Json::Value toJson() const;
@@ -116,6 +166,11 @@ class Gallery
     void updateArgs(drogon::orm::internal::SqlBinder &binder) const;
     ///For mysql or sqlite3
     void updateId(const uint64_t id);
+    std::shared_ptr<int32_t> id_;
+    std::shared_ptr<std::string> title_;
+    std::shared_ptr<std::string> imageObjectKey_;
+    std::shared_ptr<std::string> tags_;
+    std::shared_ptr<::trantor::Date> createdAt_;
     struct MetaData
     {
         const std::string colName_;
@@ -127,17 +182,17 @@ class Gallery
         const bool notNull_;
     };
     static const std::vector<MetaData> metaData_;
-    bool dirtyFlag_[0]={ false };
+    bool dirtyFlag_[5]={ false };
   public:
     static const std::string &sqlForFindingByPrimaryKey()
     {
-        static const std::string sql="";
+        static const std::string sql="select * from " + tableName + " where id = $1";
         return sql;
     }
 
     static const std::string &sqlForDeletingByPrimaryKey()
     {
-        static const std::string sql="";
+        static const std::string sql="delete from " + tableName + " where id = $1";
         return sql;
     }
     std::string sqlForInserting(bool &needSelection) const
@@ -145,6 +200,30 @@ class Gallery
         std::string sql="insert into " + tableName + " (";
         size_t parametersCount = 0;
         needSelection = false;
+            sql += "id,";
+            ++parametersCount;
+        if(dirtyFlag_[1])
+        {
+            sql += "title,";
+            ++parametersCount;
+        }
+        if(dirtyFlag_[2])
+        {
+            sql += "image_object_key,";
+            ++parametersCount;
+        }
+        if(dirtyFlag_[3])
+        {
+            sql += "tags,";
+            ++parametersCount;
+        }
+        sql += "created_at,";
+        ++parametersCount;
+        if(!dirtyFlag_[4])
+        {
+            needSelection=true;
+        }
+        needSelection=true;
         if(parametersCount > 0)
         {
             sql[sql.length()-1]=')';
@@ -156,6 +235,31 @@ class Gallery
         int placeholder=1;
         char placeholderStr[64];
         size_t n=0;
+        sql +="default,";
+        if(dirtyFlag_[1])
+        {
+            n = sprintf(placeholderStr,"$%d,",placeholder++);
+            sql.append(placeholderStr, n);
+        }
+        if(dirtyFlag_[2])
+        {
+            n = sprintf(placeholderStr,"$%d,",placeholder++);
+            sql.append(placeholderStr, n);
+        }
+        if(dirtyFlag_[3])
+        {
+            n = sprintf(placeholderStr,"$%d,",placeholder++);
+            sql.append(placeholderStr, n);
+        }
+        if(dirtyFlag_[4])
+        {
+            n = sprintf(placeholderStr,"$%d,",placeholder++);
+            sql.append(placeholderStr, n);
+        }
+        else
+        {
+            sql +="default,";
+        }
         if(parametersCount > 0)
         {
             sql.resize(sql.length() - 1);

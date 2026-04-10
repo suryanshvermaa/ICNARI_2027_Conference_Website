@@ -3,8 +3,8 @@ CREATE TABLE committee (
     name VARCHAR(255) NOT NULL,
     specialization VARCHAR(255),
     college VARCHAR(255),
-    committee ENUM('organizing', 'technical', 'programme','international','industry') NOT NULL,
+    committee VARCHAR(32) NOT NULL CHECK (committee IN ('organizing', 'technical', 'programme', 'international', 'industry')),
     profile_picture_object_key VARCHAR(255),
     description TEXT,
-    priority INT DEFAULT 0,
+    priority INT DEFAULT 0
 );

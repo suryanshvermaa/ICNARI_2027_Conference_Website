@@ -5,7 +5,7 @@
   "dbname": "icnari_conference_db",
   "user": "postgres",
   "passwd": "postgres",
-  "tables": ["user","notification","gallery","contact","committee","speaker"],
+  "tables": ["users","notifications","gallery","contacts","committee","speakers"],
   "relationships": {
       "enabled": false,
       "items": []

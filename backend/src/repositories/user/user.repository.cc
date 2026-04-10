@@ -1,21 +1,19 @@
 #include"./user.repository.hpp"
-#include"../../models/User.h"
+#include"../../models/Users.h"
 #include"../../config/database.h"
 #include"../../services/S3Service.h"
 
-using namespace drogon_model::ieee_conference_db;
+using namespace drogon_model::icnari_conference_db;
 using namespace drogon::orm;
 
 int UserRepository::createUser(const user& u){
     try
     {
         Users user;
-        user.setUsername(u.name);
+        user.setName(u.name);
         user.setEmail(u.email);
-        user.setPasswordHash(u.passwordHash);
-        user.setRole(u.role);
-        if(u.provider != "") user.setProvider(u.provider);
-        if(u.profilePictureUrl != "") user.setProfilePictureObjectKey(u.profilePictureUrl);
+        user.setPassword(u.password);
+        if(u.profile_picture_object_key != "") user.setProfilePictureObjectKey(u.profile_picture_object_key);
         Mapper<Users> mapper(Database::getClient());
         mapper.insert(user);
         return user.getValueOfId();
@@ -36,12 +34,10 @@ std::vector<user> UserRepository::getUsers(int page,int limit){
         for(const auto& dbUser:dbUsers){
             user u;
             u.id=dbUser.getValueOfId();
-            u.name=dbUser.getValueOfUsername();
+            u.name=dbUser.getValueOfName();
             u.email=dbUser.getValueOfEmail();
-            u.passwordHash=dbUser.getValueOfPasswordHash();
-            u.role=dbUser.getValueOfRole();
-            u.provider=dbUser.getValueOfProvider();
-            if(dbUser.getValueOfProfilePictureObjectKey() != ""&&u.profilePictureUrl.find("https://") == std::string::npos) u.profilePictureUrl=getSignedUrl(dbUser.getValueOfProfilePictureObjectKey());
+            u.password=dbUser.getValueOfPassword();
+            u.profile_picture_object_key=dbUser.getValueOfProfilePictureObjectKey();
             users.push_back(u);
         }
         return users;
@@ -60,12 +56,10 @@ user UserRepository::getUser(int id){
         auto dbUser=mapper.findByPrimaryKey(id);
         user u;
         u.id=dbUser.getValueOfId();
-        u.name=dbUser.getValueOfUsername();
+        u.name=dbUser.getValueOfName();
         u.email=dbUser.getValueOfEmail();
-        u.passwordHash=dbUser.getValueOfPasswordHash();
-        u.role=dbUser.getValueOfRole();
-        u.provider=dbUser.getValueOfProvider();
-        if(dbUser.getValueOfProfilePictureObjectKey() != ""&&u.profilePictureUrl.find("https://") == std::string::npos) u.profilePictureUrl=getSignedUrl(dbUser.getValueOfProfilePictureObjectKey());
+        u.password=dbUser.getValueOfPassword();
+        u.profile_picture_object_key=dbUser.getValueOfProfilePictureObjectKey();
         return u;
     }
     catch(const std::exception& e)
@@ -82,12 +76,10 @@ user UserRepository::getUserByEmail(const std::string& email){
         auto dbUser=mapper.findOne(Criteria(Users::Cols::_email, email));
         user u;
         u.id=dbUser.getValueOfId();
-        u.name=dbUser.getValueOfUsername();
+        u.name=dbUser.getValueOfName();
         u.email=dbUser.getValueOfEmail();
-        u.passwordHash=dbUser.getValueOfPasswordHash();
-        u.role=dbUser.getValueOfRole();
-        u.provider=dbUser.getValueOfProvider();
-        if(dbUser.getValueOfProfilePictureObjectKey() != ""&&u.profilePictureUrl.find("https://") == std::string::npos) u.profilePictureUrl=getSignedUrl(dbUser.getValueOfProfilePictureObjectKey());
+        u.password=dbUser.getValueOfPassword();
+        u.profile_picture_object_key=dbUser.getValueOfProfilePictureObjectKey();
         return u;
     }
     catch(const std::exception& e)
@@ -115,11 +107,10 @@ bool UserRepository::updateUser(int id,const user& u){
     {
         Mapper<Users> mapper(Database::getClient());
         auto dbUser=mapper.findByPrimaryKey(id);
-        dbUser.setUsername(u.name);
+        dbUser.setName(u.name);
         dbUser.setEmail(u.email);
-        dbUser.setPasswordHash(u.passwordHash);
-        dbUser.setRole(u.role);
-        if(u.profilePictureUrl != "") dbUser.setProfilePictureObjectKey(getS3KeyFromUrl(u.profilePictureUrl));
+        dbUser.setPassword(u.password);
+        if(u.profile_picture_object_key != "") dbUser.setProfilePictureObjectKey(u.profile_picture_object_key);
         mapper.update(dbUser);
         return true;
     }

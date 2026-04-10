@@ -5,10 +5,8 @@ struct user
     int id;
     std::string name;
     std::string email;
-    std::string passwordHash;
-    std::string role;
-    std::string profilePictureUrl;
-    std::string provider;
+    std::string password;
+    std::string profile_picture_object_key;
 };
 
 namespace UserRepository{
