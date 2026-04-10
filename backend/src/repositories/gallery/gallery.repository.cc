@@ -83,7 +83,7 @@ vector<galleryStruct> GalleryRepository::getAllGalleries(int limit, int page){
     try
     {
         Mapper<Gallery> mapper(Database::getClient());
-        vector<Gallery> galleries = mapper.limit(limit).offset((page-1)*limit).findAll();
+        vector<Gallery> galleries = mapper.offset((page-1)*limit).limit(limit).findAll();
         vector<galleryStruct> result;
         for(auto &gal : galleries){
             galleryStruct g;

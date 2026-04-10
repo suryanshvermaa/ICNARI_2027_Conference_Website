@@ -30,7 +30,7 @@ std::vector<user> UserRepository::getUsers(int page,int limit){
     {
         std::vector<user> users;
         Mapper<Users> mapper(Database::getClient());
-        auto dbUsers=mapper.limit(limit).offset((page-1)*limit).findAll();
+        auto dbUsers=mapper.offset((page-1)*limit).limit(limit).findAll();
         for(const auto& dbUser:dbUsers){
             user u;
             u.id=dbUser.getValueOfId();

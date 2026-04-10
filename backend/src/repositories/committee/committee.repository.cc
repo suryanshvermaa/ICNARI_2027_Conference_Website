@@ -29,7 +29,7 @@ void CommitteeRepository::updateCommitteeMember(int id,const committeeMemberStru
 
 vector<committeeMemberStruct> CommitteeRepository::getCommitteeMembers(const std::string& committee,int page=1,int limit=10) {
     Mapper<Committee> mapper(Database::getClient());
-    auto members = mapper.limit(limit).offset((page-1)*limit).orderBy(Committee::Cols::_priority, SortOrder::ASC).findBy(Criteria(Committee::Cols::_committee, committee));
+    auto members = mapper.offset((page-1)*limit).limit(limit).orderBy(Committee::Cols::_priority, SortOrder::ASC).findBy(Criteria(Committee::Cols::_committee, committee));
     vector<committeeMemberStruct> result;
     for (const auto& member : members) {
         committeeMemberStruct memberStruct;

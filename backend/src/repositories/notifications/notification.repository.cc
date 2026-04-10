@@ -88,7 +88,7 @@ vector<notification> NotificationRepository::getNotifications(int page,int limit
     {
         vector<notification> notifications;
         Mapper<Notifications> mapper(Database::getClient());
-        auto dbNotifications=mapper.limit(limit).offset((page-1)*limit).findBy(
+        auto dbNotifications=mapper.offset((page-1)*limit).limit(limit).findBy(
             Criteria(Notifications::Cols::_type, type)
         );
         for(auto &dbNoti:dbNotifications){
