@@ -71,15 +71,15 @@ cmake --build --preset conan-release
 
 Outputs:
 
-- `build/build/Release/ICNARI_Conference_Backend` (main server)
-- `build/build/Release/createAdmin` (CLI helper)
+- `build/ICNARI_Conference_Backend` (main server)
+- `build/createAdmin` (CLI helper)
 
 ## Run (local)
 
 Important: the server loads `./config/config.json` using a relative path, so run it from inside this `backend/` directory.
 
 ```bash
-./build/build/Release/ICNARI_Conference_Backend
+./build/ICNARI_Conference_Backend
 ```
 
 Database config comes from `config/config.json`.
@@ -89,7 +89,7 @@ Database config comes from `config/config.json`.
 Build first, then run:
 
 ```bash
-./build/build/Release/createAdmin ./config/config.json
+./build/createAdmin ./config/config.json
 ```
 
 The prompt asks for email/username/password and inserts a user with role `admin`.
