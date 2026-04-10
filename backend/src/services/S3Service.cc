@@ -1,6 +1,7 @@
-#include "../config/aws_config.h"
+#include "../config/AwsConfig.h"
 #include "S3Service.h"
 
+#include <aws/core/utils/memory/stl/AWSStringStream.h>
 #include <stdexcept>
 
 static std::string requireBucket()
@@ -32,7 +33,7 @@ std::string getSignedUrl(const std::string& key){
 /**
  * @details Generates a pre-signed URL for uploading an object to the specified S3 bucket with the given key. The URL is valid for 1 hour (3600 seconds).
  */
-std::string putObjectSignedUrl(const std::string& key){
+std::string putObject(const std::string& key, const drogon::HttpFile& file){
     const auto bucket = requireBucket();
     Aws::S3::S3Client client(
         AwsConfig::credentials(),
@@ -40,7 +41,20 @@ std::string putObjectSignedUrl(const std::string& key){
         Aws::Client::AWSAuthV4Signer::PayloadSigningPolicy::Never,
         false
     );
-    return client.GeneratePresignedUrl(bucket, key, Aws::Http::HttpMethod::HTTP_PUT, 3600);
+    Aws::S3::Model::PutObjectRequest request;
+    request.SetBucket(bucket);
+    request.SetKey(key);
+
+    auto body = Aws::MakeShared<Aws::StringStream>("PutObjectInputStream");
+    body->write(file.fileData(), static_cast<std::streamsize>(file.fileLength()));
+    request.SetContentLength(static_cast<long long>(file.fileLength()));
+    request.SetBody(body);
+
+    auto outcome = client.PutObject(request);
+    if (!outcome.IsSuccess()) {
+        throw std::runtime_error("Failed to upload object: " + outcome.GetError().GetMessage());
+    }
+    return key;
 }
 
 /**
