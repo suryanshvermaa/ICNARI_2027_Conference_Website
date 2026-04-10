@@ -1,0 +1,140 @@
+const SponsorshipPage = () => {
+  return (
+    <div className="bg-zinc-50 dark:bg-slate-950 text-zinc-900 dark:text-slate-50 font-sans mt-12">
+      <header className="bg-blue-900 text-white p-6 text-center">
+        <h1 className="text-3xl font-bold">SPONSORSHIP & EXHIBITIONS</h1>
+      </header>
+
+      <main className="max-w-5xl mx-auto p-6">
+        <section className="mb-8">
+          <h2 className="text-2xl font-semibold mb-2">Call For Sponsorship</h2>
+          <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 font-bold text-xl">
+            Submit Interest Form
+          </button>
+          <p className="mt-4 text-2xl">
+            Department of Electrical Engineering, National Institute of Technology (NIT), Patna is happy to announce the {" "}
+            <strong>
+              International Conference on Next-Generation Adaptive Research and Innovations (ICNARI-2027)
+            </strong>
+            , scheduled during 6–8 March 2027 at NIT Patna.
+          </p>
+          <p className="mt-4 mb-2">
+            <a href="#" className="text-blue-700 dark:text-blue-200 underline text-xl">
+              For more sponsorship details click here.
+            </a>
+          </p>
+          <p className="mt-2 text-2xl">
+            We invite you to support this landmark event and contribute to a transformative experience,
+            bringing together the most innovative minds to push the boundaries of research and innovation.
+          </p>
+        </section>
+
+        <section className="grid grid-cols-2 md:grid-cols-4 gap-10 text-center mb-8">
+          <div className="bg-zinc-200 dark:bg-slate-800/60 p-4 rounded shadow-sm text-blue-700 dark:text-blue-200 font-bold text-lg">
+            Platinum Sponsor
+            <img src="/platinum.png" alt="Platinum Sponsor" className="mx-auto mt-2 h-20" loading="lazy" decoding="async" />
+          </div>
+          <div className="bg-zinc-200 dark:bg-slate-800/60 p-4 rounded shadow-sm text-yellow-600 dark:text-yellow-300 font-bold text-2xl">
+            Gold Sponsor
+            <img src="/gold.png" alt="Gold Sponsor" className="mx-auto mt-2 h-20" loading="lazy" decoding="async" />
+          </div>
+          <div className="bg-zinc-200 dark:bg-slate-800/60 p-4 rounded shadow-sm text-zinc-600 dark:text-slate-200 font-bold text-2xl">
+            Silver Sponsor
+            <img src="/silver.png" alt="Silver Sponsor" className="mx-auto mt-2 h-20" loading="lazy" decoding="async" />
+          </div>
+          <div className="bg-zinc-200 dark:bg-slate-800/60 p-4 rounded shadow-sm text-orange-600 dark:text-orange-300 font-bold text-2xl">
+            Bronze Sponsor
+            <img src="/bronze.png" alt="Bronze Sponsor" className="mx-auto mt-2 h-20" loading="lazy" decoding="async" />
+          </div>
+        </section>
+
+        <p className="mb-4 font-semibold">
+          18% GST will be charged in addition to the basic amount.
+        </p>
+
+        <section className="overflow-x-auto mb-10">
+          <table className="min-w-full table-auto border border-zinc-200 dark:border-slate-700/60 text-sm">
+            <thead className="bg-zinc-100 dark:bg-slate-800/60">
+              <tr>
+                <th className="border px-4 py-2">Category</th>
+                <th className="border px-4 py-2">Facilities</th>
+                {/* <th className="border px-4 py-2">Support (Rs)</th> */}
+              </tr>
+            </thead>
+            <tbody>
+              {[ 
+                { name: "PLATINUM", facilities: "Exhibition Stand, Platform for Technical Presentation, Registration Fees Waived for Three Participants, Promotional Banner, Logo in Brochure and Banner, Full-Page A4 Ad in Abstract Book", price: "₹ XXXX or above" },
+                { name: "GOLD", facilities: "Exhibition Stand, Platform for Technical Presentation, Registration Fees Waived for Two Participants, Logo in Brochure and Banner, Full-Page A4 Ad in Abstract Book", price: "₹ XXXX or above" },
+                { name: "SILVER", facilities: "Exhibition Stand, Complimentary Registration for Two, Logo in Brochure and Banner", price: "₹ XXXX or above" },
+                { name: "BRONZE", facilities: "Complimentary Registration for Two, Logo on Banner", price: "₹ XXXX or above" },
+                { name: "Academic/Industrial", facilities: "Exhibition stall with two tables and electrical connections", price: "₹ XXXX" },
+              ].map((item, i) => (
+                <tr key={i} className={i % 2 === 0 ? "bg-white dark:bg-slate-900/40" : "bg-zinc-50 dark:bg-slate-900/20"}>
+                  <td className="border px-4 py-2 font-bold">{item.name}</td>
+                  <td className="border px-4 py-2">{item.facilities}</td>
+                  {/* <td className="border px-4 py-2">{item.price}</td> */}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+
+        <section className="mb-10">
+          <h3 className="text-xl font-semibold mb-4">Additional Sponsorship Opportunities</h3>
+          <ul className="list-disc list-inside space-y-2">
+            {[ 
+              "Delegate Kit",
+              "Conference Lunch",
+              "High Tea",
+              "Conference Breakfast",
+              "Tea Break",
+              "Plenary Lecture",
+              "Poster Sessions",
+              "Abstract Book",
+              "Conference Proceedings",
+              "Banner",
+            ].map((item, i) => (
+              <li key={i}>Sponsorship of {item}</li>
+            ))}
+          </ul>
+          <p className="mt-4 italic">
+            If the above options do not fit your marketing needs, the support opportunities can be customized for your requirements.
+          </p>
+        </section>
+
+        <section className="mb-10">
+          <h3 className="text-xl font-semibold mb-2">Important Dates</h3>
+          <p>
+            Last date for receipt of advertisement materials: <strong></strong>
+          </p>
+        </section>
+
+        <section>
+          <h3 className="text-xl font-semibold mb-2">Bank Account Details</h3>
+          <ul className="list-disc list-inside">
+          <div>
+              <strong className="font-semibold">Bank Name:</strong> Indian Bank
+            </div>
+            <div>
+              <strong className="font-semibold">Branch:</strong> NIT Patna Campus
+            </div>
+            <div>
+              <strong className="font-semibold">Account Name:</strong> NIT Patna CF Account
+            </div>
+            <div>
+              <strong className="font-semibold">Account Number:</strong> 50433562364
+            </div>
+            <div>
+              <strong className="font-semibold">IFSC Code:</strong> IDIB000B810
+            </div>
+            <div>
+              <strong className="font-semibold">MICR Code:</strong> 800019027
+            </div>
+          </ul>
+        </section>
+      </main>
+    </div>
+  );
+};
+
+export default SponsorshipPage;
