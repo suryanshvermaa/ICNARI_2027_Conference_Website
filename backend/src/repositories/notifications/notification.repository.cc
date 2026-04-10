@@ -2,7 +2,7 @@
 #include"../../models/Notifications.h"
 #include"../../config/database.h"
 
-using namespace drogon_model::ieee_conference_db;
+using namespace drogon_model::icnari_conference_db;
 using namespace drogon::orm;
 
 int NotificationRepository::createNotification(const notification &n){

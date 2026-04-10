@@ -12,7 +12,7 @@ int GalleryRepository::createGallery(const std::string& title, const vector<std:
                 tagsString+=",";
             }
         }
-        newGallery.setName(title);
+        newGallery.setTitle(title);
         newGallery.setTags(tagsString);
         newGallery.setImageObjectKey(imageObjectKey);
 
@@ -58,7 +58,7 @@ galleryStruct GalleryRepository::getGalleryById(int id){
         }
         galleryStruct g;
         g.id=gal.getValueOfId();
-        g.title=gal.getValueOfName();
+        g.title=gal.getValueOfTitle();
         string tags=gal.getValueOfTags();
         size_t pos = 0;
         string token;
@@ -68,7 +68,7 @@ galleryStruct GalleryRepository::getGalleryById(int id){
             tags.erase(0, pos + 1);
         }
         g.tags.push_back(tags);
-        g.imageUrl=getSignedUrl(gal.getValueOfImageObjectKey());
+        g.imageObjectKey=gal.getValueOfImageObjectKey();
         g.createdAt=gal.getValueOfCreatedAt().toDbString();
         return g;
     }
@@ -88,7 +88,7 @@ vector<galleryStruct> GalleryRepository::getAllGalleries(int limit, int page){
         for(auto &gal : galleries){
             galleryStruct g;
             g.id=gal.getValueOfId();
-            g.title=gal.getValueOfName();
+            g.title=gal.getValueOfTitle();
             string tags=gal.getValueOfTags();
             size_t pos = 0;
             string token;
@@ -98,7 +98,7 @@ vector<galleryStruct> GalleryRepository::getAllGalleries(int limit, int page){
                 tags.erase(0, pos + 1);
             }
             g.tags.push_back(tags);
-            g.imageUrl=getSignedUrl(gal.getValueOfImageObjectKey());
+            g.imageObjectKey=gal.getValueOfImageObjectKey();
             g.createdAt=gal.getValueOfCreatedAt().toDbString();
             result.push_back(g);
         }

@@ -5,7 +5,7 @@
 #include"../../services/S3Service.h"
 #include<vector>
 
-using namespace drogon_model::ieee_conference_db;
+using namespace drogon_model::icnari_conference_db;
 using namespace drogon::orm;
 using std::vector;
 
@@ -13,7 +13,7 @@ struct galleryStruct{
     int id;
     std::string title;
     vector<std::string> tags;
-    std::string imageUrl;
+    std::string imageObjectKey;
     std::string createdAt;
 };
 
