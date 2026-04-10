@@ -42,4 +42,7 @@ namespace CommitteeRepository {
     bool updateCommitteeMember(const committeeMemberStruct& member);
     bool deleteCommitteeMember(int id);
     committeeMemberStruct getCommitteeMemberById(int id);
+    bool isValidCommittee(const std::string& committee){
+        return std::find(allowedCommittees.begin(), allowedCommittees.end(), committee) != allowedCommittees.end();
+    };
 }

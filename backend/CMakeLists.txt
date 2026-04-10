@@ -16,6 +16,7 @@ add_executable(ICNARI_Conference_Backend
     ./src/controllers/auth/api_v1_auth.cc
     ./src/controllers/notifications/api_v1_notifications.cc
     ./src/controllers/gallery/api_v1_gallery.cc
+    ./src/controllers/committee/api_v1_committee.cc
 
     # # models
     ./src/models/Users.cc
