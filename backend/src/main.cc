@@ -4,14 +4,16 @@
 #include"./config/database.h"
 using namespace drogon;
 
+static std::string origin=std::getenv("ORIGIN")?std::string(std::getenv("ORIGIN")):"*";
+
 static void addCorsHeaders(const HttpRequestPtr &req, const HttpResponsePtr &resp)
 {
-    // Reflect the Origin when present (safer than '*' for some clients)
     const auto origin = req->getHeader("Origin");
     resp->addHeader("Access-Control-Allow-Origin", origin.empty() ? "*" : origin);
     resp->addHeader("Vary", "Origin");
+    resp->addHeader("Access-Control-Allow-Credentials", "true");
     resp->addHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-    resp->addHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    resp->addHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
     resp->addHeader("Access-Control-Max-Age", "86400");
 }
 

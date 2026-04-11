@@ -35,6 +35,6 @@ WORKDIR /app
 RUN mkdir -p /app/config
 COPY --from=builder /app/build/ICNARI_Conference_Backend /app/build/ICNARI_Conference_Backend
 
-EXPOSE 8080
+EXPOSE 3000
 
 CMD ["/app/build/ICNARI_Conference_Backend"]
