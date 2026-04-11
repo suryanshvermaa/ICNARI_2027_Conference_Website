@@ -145,6 +145,7 @@ function App() {
   const isAdminRoute = location.pathname.startsWith("/admin");
   const isLoginRoute = location.pathname === "/login";
   const showPublicChrome = !(isAdminRoute || isLoginRoute);
+  const transitionKey = isAdminRoute ? "/admin" : location.pathname;
   return (
     <div className="flex flex-col min-h-screen dark:bg-slate-900">
       {showPublicChrome ? <Navbar fetch={fetch} setfetch={setfetch}/> : null}
@@ -152,7 +153,7 @@ function App() {
       <ToastContainer theme={themeMode} />
       <Suspense fallback={<RouteLoader />}>
         <AnimatePresence mode="wait" initial={false}>
-        <PageTransition routeKey={location.pathname}>
+        <PageTransition routeKey={transitionKey}>
         <Routes location={location}>
           <Route path="/" element={<Home />} />
           {/* About routes */}

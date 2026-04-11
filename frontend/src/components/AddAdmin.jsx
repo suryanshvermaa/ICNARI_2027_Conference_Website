@@ -77,6 +77,7 @@ const AddAdmin = () => {
 					if (profile?.name) {
 						localStorage.setItem('name', profile.name);
 					}
+					sessionStorage.setItem(`admin_profile_fetched_${userId}`, '1');
 					window.dispatchEvent(new Event('profilePhotoUpdated'));
 				} catch {
 					// Ignore profile refresh errors

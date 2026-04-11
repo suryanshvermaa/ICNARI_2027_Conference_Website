@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
   LayoutDashboard,
@@ -22,6 +22,7 @@ import {
 
 const AdminLayout = ({ children, setfetch }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const [userName, setUserName] = useState(localStorage.getItem("name") || "Admin");
@@ -29,8 +30,26 @@ const AdminLayout = ({ children, setfetch }) => {
   const [photoError, setPhotoError] = useState(false);
 
   useEffect(() => {
+    const onPhotoUpdated = () => {
+      const nextPhoto = localStorage.getItem("photo") || "";
+      const nextName = localStorage.getItem("name") || "Admin";
+      setUserPhoto(nextPhoto);
+      setUserName(nextName);
+      setPhotoError(false);
+    };
+
+    window.addEventListener("profilePhotoUpdated", onPhotoUpdated);
+    return () => window.removeEventListener("profilePhotoUpdated", onPhotoUpdated);
+  }, []);
+
+  useEffect(() => {
+    // Only fetch the profile when user opens the Profile page.
+    // Other admin routes rely on cached localStorage values (set at login / after profile update).
+    if (location.pathname !== "/admin/profile") return;
+
     const userId = localStorage.getItem("user_id");
     const token = localStorage.getItem("token");
+    const cacheKey = userId ? `admin_profile_fetched_${userId}` : null;
 
     const fetchProfile = async () => {
       if (!userId) return;
@@ -49,24 +68,28 @@ const AdminLayout = ({ children, setfetch }) => {
           setUserPhoto(profile.profilePicture);
           setPhotoError(false);
         }
+
+        if (cacheKey) {
+          sessionStorage.setItem(cacheKey, "1");
+        }
       } catch {
+        if (cacheKey) {
+          sessionStorage.removeItem(cacheKey);
+        }
         // Ignore profile fetch failures; UI still works.
       }
     };
 
-    fetchProfile();
-
-    const onPhotoUpdated = () => {
-      const nextPhoto = localStorage.getItem("photo") || "";
-      const nextName = localStorage.getItem("name") || "Admin";
-      setUserPhoto(nextPhoto);
-      setUserName(nextName);
-      setPhotoError(false);
-    };
-
-    window.addEventListener("profilePhotoUpdated", onPhotoUpdated);
-    return () => window.removeEventListener("profilePhotoUpdated", onPhotoUpdated);
-  }, []);
+    // Fetch profile only once per user per tab.
+    const cacheValue = cacheKey ? sessionStorage.getItem(cacheKey) : null;
+    const alreadyFetchedOrPending = cacheValue === "1" || cacheValue === "pending";
+    if (!alreadyFetchedOrPending) {
+      if (cacheKey) {
+        sessionStorage.setItem(cacheKey, "pending");
+      }
+      fetchProfile();
+    }
+  }, [location.pathname]);
 
   const navItems = useMemo(
     () =>
@@ -95,6 +118,10 @@ const AdminLayout = ({ children, setfetch }) => {
   );
 
   const handleLogout = () => {
+    const userId = localStorage.getItem("user_id");
+    if (userId) {
+      sessionStorage.removeItem(`admin_profile_fetched_${userId}`);
+    }
     localStorage.removeItem("token");
     localStorage.removeItem("photo");
     localStorage.removeItem("name");
