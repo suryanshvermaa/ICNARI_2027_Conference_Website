@@ -14,6 +14,7 @@ const AddAdmin = () => {
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		const token = localStorage.getItem('token');
+		const userId = localStorage.getItem('user_id');
 		if (!token) {
 			toast.error('Please log in first.');
 			return;
@@ -54,6 +55,34 @@ const AddAdmin = () => {
 					{ headers: { Authorization: `Bearer ${token}` } }
 				);
 				toast.success(updateRes?.data?.message || 'Profile updated');
+				if (name) {
+					localStorage.setItem('name', name);
+				}
+			}
+
+			// Refresh cached profile picture/name for the header
+			if (userId) {
+				try {
+					const profileRes = await axios.get(
+						`${import.meta.env.VITE_API_URL}/api/v1/users/profile`,
+						{
+							params: { id: Number(userId) },
+							headers: { Authorization: `Bearer ${token}` },
+						}
+					);
+					const profile = profileRes?.data?.data;
+					if (profile?.profilePicture) {
+						localStorage.setItem('photo', profile.profilePicture);
+					}
+					if (profile?.name) {
+						localStorage.setItem('name', profile.name);
+					}
+					window.dispatchEvent(new Event('profilePhotoUpdated'));
+				} catch {
+					// Ignore profile refresh errors
+				}
+			} else {
+				window.dispatchEvent(new Event('profilePhotoUpdated'));
 			}
 			setName('');
 			setEmail('');

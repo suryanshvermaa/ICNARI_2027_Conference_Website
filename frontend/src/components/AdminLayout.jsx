@@ -1,5 +1,6 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
+import axios from "axios";
 import {
   LayoutDashboard,
   User,
@@ -23,8 +24,49 @@ const AdminLayout = ({ children, setfetch }) => {
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const userPhoto = localStorage.getItem("photo");
-  const userName = localStorage.getItem("name") || "Admin";
+  const [userName, setUserName] = useState(localStorage.getItem("name") || "Admin");
+  const [userPhoto, setUserPhoto] = useState(localStorage.getItem("photo") || "");
+  const [photoError, setPhotoError] = useState(false);
+
+  useEffect(() => {
+    const userId = localStorage.getItem("user_id");
+    const token = localStorage.getItem("token");
+
+    const fetchProfile = async () => {
+      if (!userId) return;
+      try {
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/users/profile`, {
+          params: { id: Number(userId) },
+          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        });
+        const profile = res?.data?.data;
+        if (profile?.name) {
+          localStorage.setItem("name", profile.name);
+          setUserName(profile.name);
+        }
+        if (profile?.profilePicture) {
+          localStorage.setItem("photo", profile.profilePicture);
+          setUserPhoto(profile.profilePicture);
+          setPhotoError(false);
+        }
+      } catch {
+        // Ignore profile fetch failures; UI still works.
+      }
+    };
+
+    fetchProfile();
+
+    const onPhotoUpdated = () => {
+      const nextPhoto = localStorage.getItem("photo") || "";
+      const nextName = localStorage.getItem("name") || "Admin";
+      setUserPhoto(nextPhoto);
+      setUserName(nextName);
+      setPhotoError(false);
+    };
+
+    window.addEventListener("profilePhotoUpdated", onPhotoUpdated);
+    return () => window.removeEventListener("profilePhotoUpdated", onPhotoUpdated);
+  }, []);
 
   const navItems = useMemo(
     () =>
@@ -56,6 +98,7 @@ const AdminLayout = ({ children, setfetch }) => {
     localStorage.removeItem("token");
     localStorage.removeItem("photo");
     localStorage.removeItem("name");
+    localStorage.removeItem("user_id");
     navigate("/login");
     setfetch?.(true);
   };
@@ -66,7 +109,13 @@ const AdminLayout = ({ children, setfetch }) => {
         {/* Sidebar (desktop) */}
         <aside className="hidden w-72 shrink-0 border-r border-zinc-200 bg-white lg:block dark:border-slate-700/60 dark:bg-slate-900/40">
           <div className="flex h-16 items-center gap-3 px-6">
-            <div className="h-9 w-9 rounded-xl bg-indigo-600/20 ring-1 ring-indigo-500/30" />
+            <img
+              src="/vite.svg"
+              alt="Conference Logo"
+              className="h-9 w-9 rounded-xl object-cover ring-1 ring-zinc-200 dark:ring-slate-700"
+              loading="lazy"
+              decoding="async"
+            />
             <div className="leading-tight">
               <div className="text-sm font-semibold tracking-tight">Conference Admin</div>
               <div className="text-xs text-zinc-500 dark:text-slate-300">Manage content & settings</div>
@@ -114,11 +163,18 @@ const AdminLayout = ({ children, setfetch }) => {
               </div>
 
               <div className="flex items-center gap-3">
-                <img
-                  src={userPhoto || "https://via.placeholder.com/64"}
-                  alt="User"
-                  className="h-9 w-9 rounded-full object-cover ring-1 ring-zinc-200 dark:ring-slate-700"
-                />
+                {userPhoto && !photoError ? (
+                  <img
+                    src={userPhoto}
+                    alt="User"
+                    className="h-9 w-9 rounded-full object-cover ring-1 ring-zinc-200 dark:ring-slate-700"
+                    onError={() => setPhotoError(true)}
+                  />
+                ) : (
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zinc-100 ring-1 ring-zinc-200 dark:bg-slate-800 dark:ring-slate-700">
+                    <User className="h-5 w-5 text-zinc-500 dark:text-slate-300" />
+                  </div>
+                )}
                 <button
                   type="button"
                   onClick={handleLogout}
@@ -146,7 +202,16 @@ const AdminLayout = ({ children, setfetch }) => {
           />
           <div className="absolute left-0 top-0 h-full w-80 max-w-[85vw] border-r border-zinc-200 bg-white p-3 dark:border-slate-700/60 dark:bg-slate-900/40">
             <div className="flex h-14 items-center justify-between px-2">
-              <div className="text-sm font-semibold">Conference Admin</div>
+              <div className="flex items-center gap-2">
+                <img
+                  src="/vite.svg"
+                  alt="Conference Logo"
+                  className="h-8 w-8 rounded-lg object-cover ring-1 ring-zinc-200 dark:ring-slate-700"
+                  loading="lazy"
+                  decoding="async"
+                />
+                <div className="text-sm font-semibold">Conference Admin</div>
+              </div>
               <button
                 type="button"
                 className="admin-icon-button"

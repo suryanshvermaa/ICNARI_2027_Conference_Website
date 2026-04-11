@@ -22,6 +22,7 @@ export default function Login({setfetch}) {
       const token = response?.data?.data?.token;
       if (token) {
         localStorage.setItem("token", token);
+        localStorage.setItem("user_id", String(response?.data?.data?.user_id ?? ""));
         localStorage.setItem("name", response?.data?.data?.name ?? "");
         localStorage.setItem("email", response?.data?.data?.email ?? "");
         toast.success("Login Successful! You have been logged in.", {
