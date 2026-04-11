@@ -16,7 +16,7 @@ const AllUpdatesUser = () => {
       const fetchUpdates = async () => {
         try {
           const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/notifications`, {
-            params: { type: "RECENT_UPDATES", page: 1, limit: 1000 },
+            params: { type: "recent_update", page: 1, limit: 1000 },
           });
           setUpdates(response?.data?.data ?? []);
         } catch (error) {

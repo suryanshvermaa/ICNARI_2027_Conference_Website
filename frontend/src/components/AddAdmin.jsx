@@ -38,12 +38,23 @@ const AddAdmin = () => {
 				}
 			}
 
-			const updateRes = await axios.put(
-				`${import.meta.env.VITE_API_URL}/api/v1/users`,
-				{ name, email, password },
-				{ headers: { Authorization: `Bearer ${token}` } }
-			);
-			toast.success(updateRes?.data?.message || 'User updated');
+			const payload = {
+				...(name ? { name } : {}),
+				...(email ? { email } : {}),
+				...(password ? { password } : {}),
+			};
+			if (Object.keys(payload).length === 0 && !image) {
+				toast.error('Please update at least one field.');
+				return;
+			}
+			if (Object.keys(payload).length > 0) {
+				const updateRes = await axios.put(
+					`${import.meta.env.VITE_API_URL}/api/v1/users`,
+					payload,
+					{ headers: { Authorization: `Bearer ${token}` } }
+				);
+				toast.success(updateRes?.data?.message || 'Profile updated');
+			}
 			setName('');
 			setEmail('');
 			setPassword('');
@@ -51,7 +62,7 @@ const AddAdmin = () => {
 			setImageLink('');
 		} catch (error) {
 			console.error('Error:', error);
-			toast.error('Something went wrong! Please try again.');
+			toast.error(error?.response?.data?.message || 'Something went wrong! Please try again.');
 		}
 	};
 
@@ -70,8 +81,8 @@ const AddAdmin = () => {
 			<div className="admin-card">
 				<div className="admin-card-inner">
 					<div className="mb-6">
-						<h2 className="admin-title">Add Admin</h2>
-						<p className="admin-muted mt-1">Create a new admin account.</p>
+						<h2 className="admin-title">Profile</h2>
+						<p className="admin-muted mt-1">Update your account details.</p>
 					</div>
 
 					<form onSubmit={handleSubmit} className="space-y-4">
@@ -82,7 +93,7 @@ const AddAdmin = () => {
 								className="admin-input"
 								value={name}
 								onChange={(e) => setName(e.target.value)}
-								required
+									placeholder="Your name"
 							/>
 						</div>
 
@@ -93,7 +104,7 @@ const AddAdmin = () => {
 								className="admin-input"
 								value={email}
 								onChange={(e) => setEmail(e.target.value)}
-								required
+									placeholder="you@example.com"
 							/>
 						</div>
 
@@ -104,7 +115,7 @@ const AddAdmin = () => {
 								className="admin-input"
 								value={password}
 								onChange={(e) => setPassword(e.target.value)}
-								required
+									placeholder="New password (optional)"
 							/>
 						</div>
 
@@ -115,7 +126,6 @@ const AddAdmin = () => {
 								accept="image/*"
 								onChange={handleImageChange}
 								className="mt-2 block w-full text-sm text-zinc-700 file:mr-3 file:rounded-lg file:border-0 file:bg-zinc-100 file:px-4 file:py-2 file:text-sm file:font-medium file:text-zinc-700 hover:file:bg-zinc-200"
-								required
 							/>
 						</div>
 
@@ -131,14 +141,9 @@ const AddAdmin = () => {
 							</div>
 						)}
 
-						<div>
-							<label className="admin-label">Image URL (Result)</label>
-							<input type="text" className="admin-input" value={imageLink} readOnly />
-						</div>
-
-						<button type="submit" className="admin-button-primary w-full">
-							Create Admin
-						</button>
+							<button type="submit" className="admin-button-primary w-full">
+								Save Changes
+							</button>
 					</form>
 				</div>
 			</div>

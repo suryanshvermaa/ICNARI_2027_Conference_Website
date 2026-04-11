@@ -25,7 +25,7 @@ const AddPaper = () => {
     const newPaperData = {
       title: heading,
       description: paperDescription,
-      type: "HIGHLIGHTS",
+      type: "highlight",
       link: link || '',
       priority: 0,
     };

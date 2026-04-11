@@ -60,8 +60,8 @@ const AllIndustryProgrammeCommitteeMembers = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="admin-title">Industry Programme Committee</h2>
-        <p className="admin-muted mt-1">Manage industry programme committee members.</p>
+        <h2 className="admin-title">Industry Committee</h2>
+        <p className="admin-muted mt-1">Manage industry committee members.</p>
       </div>
       {loading ? (
         <div className="admin-card">
@@ -99,7 +99,7 @@ const AllIndustryProgrammeCommitteeMembers = () => {
                     Delete
                   </button>
                   <button
-                    onClick={() => navigate(`/admin/all-industry-programme-members/${member.id}`)}
+                    onClick={() => navigate(`/admin/all-industry-members/${member.id}`)}
                     className="admin-button-primary"
                   >
                     Update

@@ -53,10 +53,8 @@ const AllUpdatesUser = lazy(() => import("./components/AllUpdatesUser"))
 const AllImages = lazy(() => import("./components/AllImages"))
 
 const AddSpeakers = lazy(() => import("./components/AddSpeakers"))
-const AddPapers = lazy(() => import("./components/AddPapers"))
 const AddRecentUpdates = lazy(() => import("./components/AddRecentUpdates"))
-const AddAdmin = lazy(() => import("./components/AddAdmin"))
-const AllPapers = lazy(() => import("./components/AllPapers"))
+const AdminProfile = lazy(() => import("./components/AddAdmin"))
 const AllSpeakers = lazy(() => import("./components/AllSpeakers"))
 const AllUpdates = lazy(() => import("./components/AllUpdates"))
 const AddPhotoGallery = lazy(() => import("./components/AddPhotoGallery"))
@@ -79,6 +77,10 @@ const AllTechnicalCommitteeMembers = lazy(() => import("./components/TechnicalCo
 const AddIndustryProgrammeCommitteeMember = lazy(() => import("./components/IndustryProgrammeCommittee/AddMember"))
 const UpdateIndustryProgrammeMember = lazy(() => import("./components/IndustryProgrammeCommittee/UpdateMember"))
 const AllIndustryProgrammeCommitteeMembers = lazy(() => import("./components/IndustryProgrammeCommittee/AllMembers"))
+
+const AddProgrammeCommitteeMember = lazy(() => import("./components/ProgrammeCommittee/AddMember"))
+const UpdateProgrammeMember = lazy(() => import("./components/ProgrammeCommittee/UpdateMember"))
+const AllProgrammeCommitteeMembers = lazy(() => import("./components/ProgrammeCommittee/AllMembers"))
 
 function RouteLoader() {
   return (
@@ -198,10 +200,8 @@ function App() {
             <Route path="/admin" element={<AdminRouteLayout setfetch={setfetch} />}>
               <Route index element={<Admin />} />
               <Route path="add-speakers" element={<AddSpeakers />} />
-              <Route path="add-papers" element={<AddPapers />} />
               <Route path="add-recent-updates" element={<AddRecentUpdates />} />
-              <Route path="add-admin" element={<AddAdmin />} />
-              <Route path="all-papers" element={<AllPapers />} />
+              <Route path="profile" element={<AdminProfile />} />
               <Route path="all-speakers" element={<AllSpeakers />} />
               <Route path="all-speakers/update/:id" element={<UpdateSpeaker />} />
               <Route path="all-updates" element={<AllUpdates />} />
@@ -217,9 +217,12 @@ function App() {
               <Route path="add-technical-member" element={<AddTechnicalCommitteeMember />} />
               <Route path="all-technical-members" element={<AllTechnicalCommitteeMembers />} />
               <Route path="all-technical-members/:id" element={<UpdateTechnicalMember />} />
-              <Route path="add-industry-programme-member" element={<AddIndustryProgrammeCommitteeMember />} />
-              <Route path="all-industry-programme-members" element={<AllIndustryProgrammeCommitteeMembers />} />
-              <Route path="all-industry-programme-members/:id" element={<UpdateIndustryProgrammeMember />} />
+              <Route path="add-programme-member" element={<AddProgrammeCommitteeMember />} />
+              <Route path="all-programme-members" element={<AllProgrammeCommitteeMembers />} />
+              <Route path="all-programme-members/:id" element={<UpdateProgrammeMember />} />
+              <Route path="add-industry-member" element={<AddIndustryProgrammeCommitteeMember />} />
+              <Route path="all-industry-members" element={<AllIndustryProgrammeCommitteeMembers />} />
+              <Route path="all-industry-members/:id" element={<UpdateIndustryProgrammeMember />} />
             </Route>
           </Route>
         </Routes>

@@ -7,7 +7,8 @@ const AddRecentUpdates = () => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [link, setLink] = useState('');
-  const [eventDate, setEventDate] = useState('');
+  const [type, setType] = useState('recent_update');
+  const [priority, setPriority] = useState(0);
 
   const token = localStorage.getItem('token'); // Get the token from localStorage
 
@@ -20,17 +21,12 @@ const AddRecentUpdates = () => {
       return;
     }
 
-    const formattedDate = eventDate ? new Date(eventDate).toISOString() : "";
-    const fullDescription = formattedDate
-      ? `${description}\n\nEvent Date: ${formattedDate}`
-      : description;
-
     const updateData = {
       title,
-      description: fullDescription,
-      type: "RECENT_UPDATES",
-      link: link || '',
-      priority: 0,
+      description,
+      type,
+      link,
+      priority: Number(priority),
     };
 
     try {
@@ -50,7 +46,8 @@ const AddRecentUpdates = () => {
         setTitle('');
         setDescription('');
         setLink('');
-        setEventDate('');
+        setType('recent_update');
+        setPriority(0);
       }
     } catch (error) {
       console.error('Error:', error);
@@ -93,24 +90,38 @@ const AddRecentUpdates = () => {
             </div>
 
             <div>
-              <label className="admin-label">Link (Optional)</label>
+              <label className="admin-label">Type</label>
+              <select
+                value={type}
+                onChange={(e) => setType(e.target.value)}
+                className="admin-select"
+                required
+              >
+                <option value="highlight">highlight</option>
+                <option value="recent_update">recent_update</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="admin-label">Link</label>
               <input
                 type="url"
                 value={link}
                 onChange={(e) => setLink(e.target.value)}
                 className="admin-input"
-                placeholder="Add a link if available"
+                placeholder="https://..."
+                required
               />
             </div>
 
             <div>
-              <label className="admin-label">Event Date</label>
+              <label className="admin-label">Priority</label>
               <input
-                type="datetime-local"
-                value={eventDate}
-                onChange={(e) => setEventDate(e.target.value)}
+                type="number"
+                value={priority}
+                onChange={(e) => setPriority(e.target.value)}
                 className="admin-input"
-                required
+                min={0}
               />
             </div>
 

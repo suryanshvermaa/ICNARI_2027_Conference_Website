@@ -2,11 +2,9 @@ import React, { useMemo, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
   LayoutDashboard,
-  UserPlus,
-  FilePlus2,
+  User,
   Mic2,
   BellPlus,
-  Files,
   Users,
   Bell,
   ImagePlus,
@@ -15,6 +13,8 @@ import {
   UsersRound,
   Wrench,
   Globe,
+  ClipboardList,
+  Factory,
   Menu,
   LogOut,
 } from "lucide-react";
@@ -30,11 +30,9 @@ const AdminLayout = ({ children, setfetch }) => {
     () =>
       [
         { to: "/admin", label: "Dashboard", icon: LayoutDashboard },
-        { to: "/admin/add-admin", label: "Add Admin", icon: UserPlus },
-        { to: "/admin/add-papers", label: "Add Paper", icon: FilePlus2 },
+        { to: "/admin/profile", label: "Profile", icon: User },
         { to: "/admin/add-speakers", label: "Add Speaker", icon: Mic2 },
         { to: "/admin/add-recent-updates", label: "Add Update", icon: BellPlus },
-        { to: "/admin/all-papers", label: "All Papers", icon: Files },
         { to: "/admin/all-speakers", label: "All Speakers", icon: Users },
         { to: "/admin/all-updates", label: "All Updates", icon: Bell },
         { to: "/admin/photogalleryupload", label: "Upload Photos", icon: ImagePlus },
@@ -44,8 +42,10 @@ const AdminLayout = ({ children, setfetch }) => {
         { to: "/admin/all-organising-members", label: "All Org Members", icon: UsersRound },
         { to: "/admin/add-technical-member", label: "Add Tech Member", icon: Wrench },
         { to: "/admin/all-technical-members", label: "All Tech Members", icon: Wrench },
-        { to: "/admin/add-industry-programme-member", label: "Add Industry Member", icon: Wrench },
-        { to: "/admin/all-industry-programme-members", label: "All Industry Members", icon: Wrench },
+        { to: "/admin/add-programme-member", label: "Add Programme Member", icon: ClipboardList },
+        { to: "/admin/all-programme-members", label: "All Programme Members", icon: ClipboardList },
+        { to: "/admin/add-industry-member", label: "Add Industry Member", icon: Factory },
+        { to: "/admin/all-industry-members", label: "All Industry Members", icon: Factory },
         { to: "/admin/add-international-member", label: "Add Intl Member", icon: Globe },
         { to: "/admin/all-international-members", label: "All Intl Members", icon: Globe },
       ],

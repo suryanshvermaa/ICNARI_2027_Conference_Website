@@ -5,6 +5,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 const AddPhotoGallery = () => {
   const [image, setImage] = useState(null);
+  const [title, setTitle] = useState('');
   const [tags, setTags] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [loading, setLoading] = useState(false);
@@ -33,6 +34,11 @@ const AddPhotoGallery = () => {
       return;
     }
 
+    if (!title) {
+      toast.error('Please enter a title.');
+      return;
+    }
+
     if (!token) {
       toast.error('Please log in first.');
       return;
@@ -41,7 +47,7 @@ const AddPhotoGallery = () => {
 
     const formData = new FormData();
     formData.append('file', image);
-    formData.append('title', image?.name || 'gallery-image');
+    formData.append('title', title);
     formData.append('tags', tags);
 
     try {
@@ -54,6 +60,7 @@ const AddPhotoGallery = () => {
 
       toast.success(result?.data?.message || 'Uploaded successfully');
       setImage(null);
+      setTitle('');
       setTags('');
       setImageUrl('');
     } catch (error) {
@@ -88,6 +95,18 @@ const AddPhotoGallery = () => {
                   <img src={imageUrl} alt="Image Preview" className="w-full rounded-xl border border-zinc-200" />
                 </div>
               )}
+            </div>
+
+            <div>
+              <label className="admin-label">Title</label>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="admin-input"
+                placeholder="Enter a title"
+                required
+              />
             </div>
 
             <div>

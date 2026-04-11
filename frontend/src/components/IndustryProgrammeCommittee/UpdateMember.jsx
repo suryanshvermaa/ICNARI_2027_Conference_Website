@@ -15,7 +15,7 @@ const UpdateIndustryProgrammeMember = () => {
     specialization:"",
     college:"",
     imageUrl:"",
-    role:"",
+    position:"",
     description:""
   })
 
@@ -34,10 +34,10 @@ const UpdateIndustryProgrammeMember = () => {
           });
           const member=res.data.data;
           console.log(member);
-          const parsed = parseRoleDescription(member.description);
+            const parsed = parseRoleDescription(member.description);
           setOrganisingMemberData({
               college:member.college,
-              role: parsed.role,
+              position: member.position || parsed.role,
               description: parsed.description,
               imageUrl:member.profile_picture_url,
               name:member.name,
@@ -73,45 +73,30 @@ const UpdateIndustryProgrammeMember = () => {
     }
 
     try {
-      const combinedDescription = organisingMemberData.role
-        ? `Role: ${organisingMemberData.role}\n${organisingMemberData.description}`
-        : organisingMemberData.description;
+      const formData = new FormData();
+      if (image) formData.append('file', image);
+      formData.append('name', organisingMemberData.name);
+      formData.append('specialization', organisingMemberData.specialization);
+      formData.append('college', organisingMemberData.college);
+      formData.append('committee', 'industry');
+      formData.append('description', organisingMemberData.description);
+      if (organisingMemberData.position) formData.append('position', organisingMemberData.position);
 
-      const response = image
-        ? await axios.put(
-            `${import.meta.env.VITE_API_URL}/api/v1/committee/${id}`,
-            (() => {
-              const formData = new FormData();
-              formData.append('file', image);
-              return formData;
-            })(),
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem('token')}`,
-                'Content-Type': 'multipart/form-data',
-              },
-            }
-          )
-        : await axios.put(
-            `${import.meta.env.VITE_API_URL}/api/v1/committee/${id}`,
-            {
-              name: organisingMemberData.name,
-              specialization: organisingMemberData.specialization,
-              college: organisingMemberData.college,
-              committee: 'industry',
-              description: combinedDescription,
-            },
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem('token')}`,
-              },
-            }
-          );
+      const response = await axios.put(
+        `${import.meta.env.VITE_API_URL}/api/v1/committee/${id}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
       console.log(response);
       toast.success(response.data.message || 'Committee member updated');
       setImage(null);
       setTimeout(()=>{
-        navigate("/admin/all-industry-programme-members");
+        navigate("/admin/all-industry-members");
       },1000)
     } catch (error) {
       console.error('Error:', error);
@@ -124,7 +109,7 @@ const UpdateIndustryProgrammeMember = () => {
       <div className="admin-card">
         <div className="admin-card-inner">
           <div className="mb-6">
-            <h2 className="admin-title">Update Industry Programme Committee Member</h2>
+            <h2 className="admin-title">Update Industry Committee Member</h2>
             <p className="admin-muted mt-1">Edit member details and image.</p>
           </div>
 
@@ -152,7 +137,6 @@ const UpdateIndustryProgrammeMember = () => {
               onChange={(e) => setOrganisingMemberData({...organisingMemberData,specialization:e.target.value})}
               className="admin-input"
               placeholder="Enter member's specialization separated by commas"
-              required
             />
           </div>
 
@@ -169,14 +153,13 @@ const UpdateIndustryProgrammeMember = () => {
           </div>
 
           <div>
-            <label className="admin-label">Role</label>
+            <label className="admin-label">Position</label>
             <input
               type="text"
-              value={organisingMemberData.role}
-              onChange={(e) => setOrganisingMemberData({...organisingMemberData,role:e.target.value})}
+              value={organisingMemberData.position}
+              onChange={(e) => setOrganisingMemberData({...organisingMemberData,position:e.target.value})}
               className="admin-input"
-              placeholder="Enter role/designation"
-              required
+              placeholder="Enter position (optional)"
             />
           </div>
 
@@ -187,8 +170,7 @@ const UpdateIndustryProgrammeMember = () => {
               value={organisingMemberData.description}
               onChange={(e) => setOrganisingMemberData({...organisingMemberData,description:e.target.value})}
               className="admin-input"
-              placeholder="Description about organising member"
-              required
+              placeholder="Short bio or description (optional)"
             />
           </div>
 

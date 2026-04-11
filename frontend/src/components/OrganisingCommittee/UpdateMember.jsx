@@ -90,37 +90,25 @@ const UpdateMember = () => {
     }
 
     try {
-      const response = image
-        ? await axios.put(
-            `${import.meta.env.VITE_API_URL}/api/v1/committee/${id}`,
-            (() => {
-              const formData = new FormData();
-              formData.append('file', image);
-              return formData;
-            })(),
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem('token')}`,
-                'Content-Type': 'multipart/form-data',
-              },
-            }
-          )
-        : await axios.put(
-            `${import.meta.env.VITE_API_URL}/api/v1/committee/${id}`,
-            {
-              name: organisingMemberData.name,
-              specialization: organisingMemberData.specialization,
-              college: organisingMemberData.college,
-              committee: 'organizing',
-              position: organisingMemberData.role,
-              description: organisingMemberData.description,
-            },
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem('token')}`,
-              },
-            }
-          );
+      const formData = new FormData();
+      if (image) formData.append('file', image);
+      formData.append('name', organisingMemberData.name);
+      formData.append('specialization', organisingMemberData.specialization);
+      formData.append('college', organisingMemberData.college);
+      formData.append('committee', 'organizing');
+      formData.append('position', organisingMemberData.role);
+      formData.append('description', organisingMemberData.description);
+
+      const response = await axios.put(
+        `${import.meta.env.VITE_API_URL}/api/v1/committee/${id}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
       console.log(response);
       toast.success(response.data.message || 'Committee member updated');
       setImage(null);
@@ -165,7 +153,6 @@ const UpdateMember = () => {
               onChange={(e) => setOrganisingMemberData({...organisingMemberData,specialization:e.target.value})}
               className="admin-input"
               placeholder="Enter member's specialization separated by commas"
-              required
             />
           </div>
 
@@ -182,14 +169,14 @@ const UpdateMember = () => {
           </div>
 
           <div>
-            <label className="admin-label">Role</label>
+            <label className="admin-label">Position</label>
             <select
               value={organisingMemberData.role}
               onChange={(e) => setOrganisingMemberData({...organisingMemberData,role:e.target.value})}
               className="admin-select"
               required
             >
-              <option value="" disabled>Select Role</option>
+              <option value="" disabled>Select Position</option>
               {roles.map((role, index) => (
                 <option key={index} value={role}>
                   {role}
@@ -206,7 +193,6 @@ const UpdateMember = () => {
               onChange={(e) => setOrganisingMemberData({...organisingMemberData,description:e.target.value})}
               className="admin-input"
               placeholder="Description about organising member"
-              required
             />
           </div>
 

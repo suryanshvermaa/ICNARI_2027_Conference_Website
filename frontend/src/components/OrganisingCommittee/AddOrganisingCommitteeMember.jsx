@@ -119,7 +119,6 @@ const AddOrganisingCommitteeMember = () => {
               onChange={(e) => setOrganisingMemberData({...organisingMemberData,specialization:e.target.value})}
               className="admin-input"
               placeholder="Enter member's specialization separated by commas"
-              required
             />
           </div>
 
@@ -136,14 +135,14 @@ const AddOrganisingCommitteeMember = () => {
           </div>
 
           <div>
-            <label className="admin-label">Role</label>
+            <label className="admin-label">Position</label>
             <select
               value={organisingMemberData.role}
               onChange={(e) => setOrganisingMemberData({...organisingMemberData,role:e.target.value})}
               className="admin-select"
               required
             >
-              <option value="" disabled>Select Role</option>
+              <option value="" disabled>Select Position</option>
               {roles.map((role, index) => (
                 <option key={index} value={role}>
                   {role}
@@ -160,7 +159,6 @@ const AddOrganisingCommitteeMember = () => {
               onChange={(e) => setOrganisingMemberData({...organisingMemberData,description:e.target.value})}
               className="admin-input"
               placeholder="Description about organising member"
-              required
             />
           </div>
 

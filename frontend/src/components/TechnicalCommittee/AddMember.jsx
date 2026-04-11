@@ -10,7 +10,7 @@ const AddTechnicalCommitteeMember = () => {
     specialization:"",
     college:"",
     imageUrl:"",
-    role:"",
+    position:"",
     description:""
   })
 
@@ -45,12 +45,9 @@ const AddTechnicalCommitteeMember = () => {
     formData.append('name', organisingMemberData.name);
     formData.append('specialization', organisingMemberData.specialization);
     formData.append('college', organisingMemberData.college);
-    formData.append('committee', 'programme');
-
-    const combinedDescription = organisingMemberData.role
-      ? `Role: ${organisingMemberData.role}\n${organisingMemberData.description}`
-      : organisingMemberData.description;
-    formData.append('description', combinedDescription);
+    formData.append('committee', 'technical');
+    if (organisingMemberData.position) formData.append('position', organisingMemberData.position);
+    formData.append('description', organisingMemberData.description);
     formData.append('priority', '0');
 
     try {
@@ -105,7 +102,6 @@ const AddTechnicalCommitteeMember = () => {
               onChange={(e) => setOrganisingMemberData({...organisingMemberData,specialization:e.target.value})}
               className="admin-input"
               placeholder="Enter member's specialization separated by commas"
-              required
             />
           </div>
 
@@ -122,14 +118,13 @@ const AddTechnicalCommitteeMember = () => {
           </div>
 
           <div>
-            <label className="admin-label">Role</label>
+            <label className="admin-label">Position</label>
             <input
               type="text"
-              value={organisingMemberData.role}
-              onChange={(e) => setOrganisingMemberData({...organisingMemberData,role:e.target.value})}
+              value={organisingMemberData.position}
+              onChange={(e) => setOrganisingMemberData({...organisingMemberData,position:e.target.value})}
               className="admin-input"
-              placeholder="Enter role/designation"
-              required
+              placeholder="Enter position (optional)"
             />
           </div>
 
@@ -140,8 +135,7 @@ const AddTechnicalCommitteeMember = () => {
               value={organisingMemberData.description}
               onChange={(e) => setOrganisingMemberData({...organisingMemberData,description:e.target.value})}
               className="admin-input"
-              placeholder="Description about organising member"
-              required
+              placeholder="Short bio or description (optional)"
             />
           </div>
 

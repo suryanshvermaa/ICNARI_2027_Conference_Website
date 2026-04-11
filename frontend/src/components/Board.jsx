@@ -10,14 +10,6 @@ const PaperUpdates = () => {
   const [loading, setLoading] = useState(false); // Loading state
     const navigate=useNavigate();
 
-  const splitPaperDescription = (description) => {
-    const text = String(description || "");
-    const parts = text.split(/\n\nAuthors:\s*/i);
-    return {
-      authors: (parts[1] || "").trim(),
-    };
-  };
-
   const stripEventDateLine = (description) => {
     if (!description) return "";
     return String(description)
@@ -31,11 +23,11 @@ const PaperUpdates = () => {
     try {
       // Fetch all papers
       const papersResponse = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/notifications`, {
-        params: { type: "HIGHLIGHTS", page: 1, limit: 1000 },
+        params: { type: "highlight", page: 1, limit: 1000 },
       });
       // Fetch all updates
       const updatesResponse = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/notifications`, {
-        params: { type: "RECENT_UPDATES", page: 1, limit: 1000 },
+        params: { type: "recent_update", page: 1, limit: 1000 },
       });
       
       // Store all papers and updates
@@ -70,7 +62,6 @@ const PaperUpdates = () => {
               <li key={index} className="bg-indigo-50 dark:bg-indigo-500/10 p-4 rounded-md shadow-sm flex justify-between items-center transition-transform duration-300">
                 <div>
                   <strong className="text-zinc-900 dark:text-slate-50">{paper.title}</strong>
-                  <p className="text-zinc-600 dark:text-slate-300 text-sm font-bold">Authors: {splitPaperDescription(paper.description).authors || "—"}</p>
                 </div>
                 {paper.link && (
                   <a href={paper.link} target="_blank" rel="noopener noreferrer">

@@ -15,7 +15,7 @@ const UpdateInternationalMember = () => {
     specialization:"",
     college:"",
     imageUrl:"",
-    role:"",
+    position:"",
     description:""
   })
 
@@ -37,7 +37,7 @@ const UpdateInternationalMember = () => {
           const parsed = parseRoleDescription(member.description);
           setOrganisingMemberData({
               college:member.college,
-              role: parsed.role,
+              position: member.position || parsed.role,
               description: parsed.description,
               imageUrl:member.profile_picture_url,
               name:member.name,
@@ -72,40 +72,25 @@ const UpdateInternationalMember = () => {
     }
 
     try {
-      const combinedDescription = organisingMemberData.role
-        ? `Role: ${organisingMemberData.role}\n${organisingMemberData.description}`
-        : organisingMemberData.description;
+      const formData = new FormData();
+      if (image) formData.append('file', image);
+      formData.append('name', organisingMemberData.name);
+      formData.append('specialization', organisingMemberData.specialization);
+      formData.append('college', organisingMemberData.college);
+      formData.append('committee', 'international');
+      formData.append('description', organisingMemberData.description);
+      if (organisingMemberData.position) formData.append('position', organisingMemberData.position);
 
-      const response = image
-        ? await axios.put(
-            `${import.meta.env.VITE_API_URL}/api/v1/committee/${id}`,
-            (() => {
-              const formData = new FormData();
-              formData.append('file', image);
-              return formData;
-            })(),
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem('token')}`,
-                'Content-Type': 'multipart/form-data',
-              },
-            }
-          )
-        : await axios.put(
-            `${import.meta.env.VITE_API_URL}/api/v1/committee/${id}`,
-            {
-              name: organisingMemberData.name,
-              specialization: organisingMemberData.specialization,
-              college: organisingMemberData.college,
-              committee: 'international',
-              description: combinedDescription,
-            },
-            {
-              headers: {
-                Authorization: `Bearer ${localStorage.getItem('token')}`,
-              },
-            }
-          );
+      const response = await axios.put(
+        `${import.meta.env.VITE_API_URL}/api/v1/committee/${id}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
       console.log(response);
       toast.success(response.data.message || 'Committee member updated');
       setImage(null);
@@ -150,7 +135,6 @@ const UpdateInternationalMember = () => {
                 onChange={(e) => setOrganisingMemberData({...organisingMemberData,specialization:e.target.value})}
                 className="admin-input"
                 placeholder="Enter member's specialization separated by commas"
-                required
               />
             </div>
 
@@ -167,14 +151,13 @@ const UpdateInternationalMember = () => {
             </div>
 
             <div>
-              <label className="admin-label">Role</label>
+              <label className="admin-label">Position</label>
               <input
                 type="text"
-                value={organisingMemberData.role}
-                onChange={(e) => setOrganisingMemberData({...organisingMemberData,role:e.target.value})}
+                value={organisingMemberData.position}
+                onChange={(e) => setOrganisingMemberData({...organisingMemberData,position:e.target.value})}
                 className="admin-input"
-                placeholder="Enter role/designation"
-                required
+                placeholder="Enter position (optional)"
               />
             </div>
 
@@ -185,8 +168,7 @@ const UpdateInternationalMember = () => {
                 value={organisingMemberData.description}
                 onChange={(e) => setOrganisingMemberData({...organisingMemberData,description:e.target.value})}
                 className="admin-input"
-                placeholder="Short bio or description"
-                required
+                placeholder="Short bio or description (optional)"
               />
             </div>
 

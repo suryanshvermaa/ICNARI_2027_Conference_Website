@@ -3,30 +3,28 @@ import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const InternationalMember = () => {
+const AddProgrammeCommitteeMember = () => {
   const [image, setImage] = useState(null);
-  const [organisingMemberData,setOrganisingMemberData]=useState({
-    name:"",
-    specialization:"",
-    college:"",
-    imageUrl:"",
-    position:"",
-    description:""
-  })
+  const [memberData, setMemberData] = useState({
+    name: "",
+    specialization: "",
+    college: "",
+    imageUrl: "",
+    position: "",
+    description: "",
+  });
 
   const token = localStorage.getItem('token');
 
-  // Handle image change
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       setImage(file);
       const imageUrl = URL.createObjectURL(file);
-      setOrganisingMemberData({...organisingMemberData,imageUrl});
+      setMemberData({ ...memberData, imageUrl });
     }
   };
 
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -42,14 +40,13 @@ const InternationalMember = () => {
 
     const formData = new FormData();
     formData.append('file', image);
-    formData.append('name', organisingMemberData.name);
-    formData.append('specialization', organisingMemberData.specialization);
-    formData.append('college', organisingMemberData.college);
-    formData.append('committee', 'international');
-
-    if (organisingMemberData.position) formData.append('position', organisingMemberData.position);
-    formData.append('description', organisingMemberData.description);
+    formData.append('name', memberData.name);
+    formData.append('college', memberData.college);
+    formData.append('committee', 'programme');
+    formData.append('specialization', memberData.specialization);
+    formData.append('description', memberData.description);
     formData.append('priority', '0');
+    if (memberData.position) formData.append('position', memberData.position);
 
     try {
       const response = await axios.post(
@@ -58,18 +55,25 @@ const InternationalMember = () => {
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
-            'Content-Type': 'multipart/form-data'
+            'Content-Type': 'multipart/form-data',
           },
         }
       );
       if (response.status === 201) {
         toast.success(response.data.message || 'Committee member created');
         setImage(null);
-        setOrganisingMemberData({name:"",description:"",imageUrl:"",specialization:"",college:"",role:""})
+        setMemberData({
+          name: "",
+          specialization: "",
+          college: "",
+          imageUrl: "",
+          position: "",
+          description: "",
+        });
       }
     } catch (error) {
       console.error('Error:', error);
-      toast.error('Failed to add the new committee member. Please try again.');
+      toast.error(error?.response?.data?.message || 'Failed to add the new committee member. Please try again.');
     }
   };
 
@@ -78,8 +82,8 @@ const InternationalMember = () => {
       <div className="admin-card">
         <div className="admin-card-inner">
           <div className="mb-6">
-            <h2 className="admin-title">Add International Advisory Committee Member</h2>
-            <p className="admin-muted mt-1">Create a new international advisory committee profile.</p>
+            <h2 className="admin-title">Add Programme Committee Member</h2>
+            <p className="admin-muted mt-1">Create a new programme committee profile.</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -87,10 +91,10 @@ const InternationalMember = () => {
               <label className="admin-label">Name</label>
               <input
                 type="text"
-                value={organisingMemberData.name}
-                onChange={(e) => setOrganisingMemberData({...organisingMemberData,name:e.target.value})}
+                value={memberData.name}
+                onChange={(e) => setMemberData({ ...memberData, name: e.target.value })}
                 className="admin-input"
-                placeholder="Enter Member name"
+                placeholder="Enter member name"
                 required
               />
             </div>
@@ -99,10 +103,10 @@ const InternationalMember = () => {
               <label className="admin-label">Specialization</label>
               <input
                 type="text"
-                value={organisingMemberData.specialization}
-                onChange={(e) => setOrganisingMemberData({...organisingMemberData,specialization:e.target.value})}
+                value={memberData.specialization}
+                onChange={(e) => setMemberData({ ...memberData, specialization: e.target.value })}
                 className="admin-input"
-                placeholder="Enter member's specialization separated by commas"
+                placeholder="Enter specialization (optional)"
               />
             </div>
 
@@ -110,10 +114,10 @@ const InternationalMember = () => {
               <label className="admin-label">College</label>
               <input
                 type="text"
-                value={organisingMemberData.college}
-                onChange={(e) => setOrganisingMemberData({...organisingMemberData,college:e.target.value})}
+                value={memberData.college}
+                onChange={(e) => setMemberData({ ...memberData, college: e.target.value })}
                 className="admin-input"
-                placeholder="Enter member's college"
+                placeholder="Enter college"
                 required
               />
             </div>
@@ -122,8 +126,8 @@ const InternationalMember = () => {
               <label className="admin-label">Position</label>
               <input
                 type="text"
-                value={organisingMemberData.position}
-                onChange={(e) => setOrganisingMemberData({...organisingMemberData,position:e.target.value})}
+                value={memberData.position}
+                onChange={(e) => setMemberData({ ...memberData, position: e.target.value })}
                 className="admin-input"
                 placeholder="Enter position (optional)"
               />
@@ -133,8 +137,8 @@ const InternationalMember = () => {
               <label className="admin-label">Description</label>
               <input
                 type="text"
-                value={organisingMemberData.description}
-                onChange={(e) => setOrganisingMemberData({...organisingMemberData,description:e.target.value})}
+                value={memberData.description}
+                onChange={(e) => setMemberData({ ...memberData, description: e.target.value })}
                 className="admin-input"
                 placeholder="Short bio or description (optional)"
               />
@@ -148,19 +152,16 @@ const InternationalMember = () => {
                 onChange={handleImageChange}
                 className="mt-2 block w-full text-sm text-zinc-700 file:mr-3 file:rounded-lg file:border-0 file:bg-zinc-100 file:px-4 file:py-2 file:text-sm file:font-medium file:text-zinc-700 hover:file:bg-zinc-200"
               />
-              {organisingMemberData.imageUrl && (
+              {memberData.imageUrl && (
                 <div className="mt-4">
                   <div className="admin-muted">Preview</div>
-                  <img src={organisingMemberData.imageUrl} alt="Preview" className="mt-2 w-full rounded-xl border border-zinc-200" />
+                  <img src={memberData.imageUrl} alt="Preview" className="mt-2 w-full rounded-xl border border-zinc-200" />
                 </div>
               )}
             </div>
 
-            <button
-              type="submit"
-              className="admin-button-primary w-full"
-            >
-              Add International Advisory Member
+            <button type="submit" className="admin-button-primary w-full">
+              Add Committee Member
             </button>
           </form>
         </div>
@@ -170,4 +171,4 @@ const InternationalMember = () => {
   );
 };
 
-export default InternationalMember;
+export default AddProgrammeCommitteeMember;

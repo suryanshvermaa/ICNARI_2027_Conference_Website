@@ -12,7 +12,7 @@ void notifications::getNotifications(const HttpRequestPtr& req, std::function<vo
         auto query=req->getParameters();
         int page=1;
         int limit=10;
-        std::string type="RECENT_UPDATES";
+        std::string type="recent_update";
         if(query.find("page")!=query.end())
             page=std::stoi(query["page"]);
         if(query.find("limit")!=query.end())

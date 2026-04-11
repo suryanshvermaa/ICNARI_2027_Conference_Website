@@ -14,6 +14,7 @@ const UpdateSpeaker = () => {
     specialization: "",
     imageUrl: "",
     description: "",
+    priority: 0,
   });
   const { id } = useParams();
   const navigate=useNavigate();
@@ -31,6 +32,7 @@ const UpdateSpeaker = () => {
           imageUrl: speakerData?.profile_picture_url || "",
           description: speakerData?.description || "",
           specialization,
+          priority: speakerData?.priority ?? 0,
         });
         setPrevImage(speakerData?.profile_picture_url || "");
       } catch {
@@ -64,22 +66,31 @@ const UpdateSpeaker = () => {
       const isUploadingNewFile = speaker.imageUrl !== prevImage && image;
 
       const response = isUploadingNewFile
-        ? await axios.put(`${import.meta.env.VITE_API_URL}/api/v1/speaker/${id}`, (() => {
-            const formData = new FormData();
-            formData.append('file', image);
-            return formData;
-          })(), {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-              Authorization: `Bearer ${token}`,
-            },
-          })
+        ? await axios.put(
+            `${import.meta.env.VITE_API_URL}/api/v1/speaker/${id}`,
+            (() => {
+              const formData = new FormData();
+              formData.append('file', image);
+              formData.append('name', speaker.name);
+              formData.append('specialization', speaker.specialization);
+              formData.append('description', speaker.description);
+              formData.append('priority', String(speaker.priority));
+              return formData;
+            })(),
+            {
+              headers: {
+                'Content-Type': 'multipart/form-data',
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          )
         : await axios.put(
             `${import.meta.env.VITE_API_URL}/api/v1/speaker/${id}`,
             {
               name: speaker.name,
               specialization: speaker.specialization,
               description: speaker.description,
+              priority: Number(speaker.priority),
             },
             {
               headers: {
@@ -93,6 +104,7 @@ const UpdateSpeaker = () => {
           imageUrl: "",
           name: "",
           specialization: "",
+          priority: 0,
         });
         toast.success(response.data.message);
         setTimeout(()=>{
@@ -139,7 +151,6 @@ const UpdateSpeaker = () => {
               }
               className="admin-input"
               placeholder="Enter speaker's specialization separated by commas"
-              required
             />
           </div>
           <div>
@@ -153,7 +164,17 @@ const UpdateSpeaker = () => {
               }
               className="admin-textarea"
               placeholder="Enter a short bio/description"
-              required
+            />
+          </div>
+
+          <div>
+            <label className="admin-label">Priority</label>
+            <input
+              type="number"
+              value={speaker.priority}
+              onChange={(e) => setSpeaker({ ...speaker, priority: e.target.value })}
+              className="admin-input"
+              min={0}
             />
           </div>
 

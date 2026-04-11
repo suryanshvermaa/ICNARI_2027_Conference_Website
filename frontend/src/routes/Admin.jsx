@@ -1,11 +1,9 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import {
-  UserPlus,
-  FilePlus2,
+  User,
   Mic2,
   BellPlus,
-  Files,
   Users,
   Bell,
   ImagePlus,
@@ -14,21 +12,17 @@ import {
   UsersRound,
   Wrench,
   Globe,
+  ClipboardList,
+  Factory,
 } from "lucide-react";
 
 export default function Admin() {
   const tiles = [
     {
-      title: "Create Admin",
-      desc: "Add a new admin account",
-      to: "/admin/add-admin",
-      icon: UserPlus,
-    },
-    {
-      title: "Add Paper",
-      desc: "Publish accepted papers",
-      to: "/admin/add-papers",
-      icon: FilePlus2,
+      title: "Profile",
+      desc: "Update your account details",
+      to: "/admin/profile",
+      icon: User,
     },
     {
       title: "Add Speaker",
@@ -41,12 +35,6 @@ export default function Admin() {
       desc: "Post recent announcements",
       to: "/admin/add-recent-updates",
       icon: BellPlus,
-    },
-    {
-      title: "All Papers",
-      desc: "View and delete papers",
-      to: "/admin/all-papers",
-      icon: Files,
     },
     {
       title: "All Speakers",
@@ -89,6 +77,18 @@ export default function Admin() {
       desc: "Add or manage members",
       to: "/admin/all-technical-members",
       icon: Wrench,
+    },
+    {
+      title: "Programme Committee",
+      desc: "Add or manage members",
+      to: "/admin/all-programme-members",
+      icon: ClipboardList,
+    },
+    {
+      title: "Industry Committee",
+      desc: "Add or manage members",
+      to: "/admin/all-industry-members",
+      icon: Factory,
     },
     {
       title: "International Committee",

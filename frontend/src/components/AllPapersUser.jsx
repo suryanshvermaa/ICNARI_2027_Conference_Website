@@ -17,7 +17,7 @@ const AllPapersUser = () => {
     const fetchPapers = async () => {
       try {
         const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/v1/notifications`, {
-          params: { type: "HIGHLIGHTS", page: 1, limit: 1000 },
+          params: { type: "highlight", page: 1, limit: 1000 },
         });
         setPapers(response?.data?.data ?? []);
       } catch (error) {

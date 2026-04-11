@@ -81,6 +81,9 @@ const AllMessages = () => {
                 <div className="min-w-0">
                   <h3 className="text-base font-semibold text-zinc-900">{msg.name}</h3>
                   <p className="text-zinc-600 text-sm">{msg.email} | {msg.phone}</p>
+                  {msg.subject ? (
+                    <p className="mt-1 text-zinc-700 text-sm font-medium">Subject: {msg.subject}</p>
+                  ) : null}
                   <p className="mt-2 text-zinc-800 text-sm whitespace-pre-wrap">{msg.message}</p>
                 </div>
                 <span className="text-xs text-zinc-500 mt-1 md:mt-0 shrink-0">

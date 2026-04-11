@@ -3,7 +3,7 @@
 using std::string;
 using std::vector;
 
-static string validTypes[]={"HIGHLIGHTS","RECENT_UPDATES"};
+static string validTypes[]={"recent_update","highlight"};
 
 struct notification
 {

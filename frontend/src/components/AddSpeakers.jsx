@@ -9,6 +9,7 @@ const AddSpeaker = () => {
   const [image, setImage] = useState(null);
   const [imageUrl, setImageUrl] = useState('');
   const [desription,setdescription]=useState('')
+  const [priority, setPriority] = useState(0);
 
   const token = localStorage.getItem('token');  // Get the token from localStorage
 
@@ -41,7 +42,7 @@ const AddSpeaker = () => {
     formData.append('name', name);
     formData.append('specialization', specialization);
     formData.append('description', desription);
-    formData.append('priority', '0');
+    formData.append('priority', String(priority));
 
     try {
       const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/v1/speaker`, formData, {
@@ -58,6 +59,7 @@ const AddSpeaker = () => {
         setImage(null);
         setImageUrl('');
         setdescription('')
+        setPriority(0);
       }
     } catch (error) {
       console.error('Error:', error);
@@ -95,7 +97,6 @@ const AddSpeaker = () => {
                 onChange={(e) => setSpecialization(e.target.value)}
                 className="admin-input"
                 placeholder="Enter speaker's specialization separated by commas"
-                required
               />
             </div>
             <div>
@@ -107,7 +108,17 @@ const AddSpeaker = () => {
                 onChange={(e) => setdescription(e.target.value)}
                 className="admin-textarea"
                 placeholder="Enter a short bio/description"
-                required
+              />
+            </div>
+
+            <div>
+              <label className="admin-label">Priority</label>
+              <input
+                type="number"
+                value={priority}
+                onChange={(e) => setPriority(e.target.value)}
+                className="admin-input"
+                min={0}
               />
             </div>
 
