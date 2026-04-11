@@ -10,9 +10,6 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@chakra-ui/react": "^3.13.0",
-    "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.14.0",
     "@tailwindcss/vite": "^4.0.15",
     "axios": "^1.8.4",
     "framer-motion": "^12.5.0",
