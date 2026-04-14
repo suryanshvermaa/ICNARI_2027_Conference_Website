@@ -32,7 +32,7 @@ bool GalleryRepository::deleteGallery(int id){
     {
         Gallery galleryToDelete;
         Mapper<Gallery> mapper(Database::getClient());
-        mapper.findByPrimaryKey(id);
+        galleryToDelete = mapper.findByPrimaryKey(id);
         if(galleryToDelete.getValueOfId()==0){
             return false;
         }
