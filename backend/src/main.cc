@@ -2,6 +2,7 @@
 #include <aws/core/Aws.h>
 #include"./utils/dotenv.hpp"
 #include"./config/database.h"
+#include"./services/S3Service.h"
 using namespace drogon;
 
 static std::string origin=std::getenv("ORIGIN")?std::string(std::getenv("ORIGIN")):"*";
@@ -85,6 +86,7 @@ int main(){
     });
     app().run();
 
+    shutdownS3Client();
     Aws::ShutdownAPI(awsOptions);
     return 0;
 }

@@ -2,7 +2,29 @@
 #include "S3Service.h"
 
 #include <aws/core/utils/memory/stl/AWSStringStream.h>
+#include <memory>
+#include <mutex>
 #include <stdexcept>
+
+namespace {
+std::shared_ptr<Aws::S3::S3Client> gS3Client;
+std::mutex gS3ClientMutex;
+
+Aws::S3::S3Client& getS3Client()
+{
+    std::lock_guard<std::mutex> lock(gS3ClientMutex);
+    if (!gS3Client)
+    {
+        gS3Client = std::make_shared<Aws::S3::S3Client>(
+            AwsConfig::credentials(),
+            AwsConfig::clientConfig(),
+            Aws::Client::AWSAuthV4Signer::PayloadSigningPolicy::Never,
+            false
+        );
+    }
+    return *gS3Client;
+}
+} // namespace
 
 static std::string requireBucket()
 {
@@ -21,12 +43,7 @@ static std::string requireBucket()
  */
 std::string getSignedUrl(const std::string& key){
     const auto bucket = requireBucket();
-    Aws::S3::S3Client client(
-        AwsConfig::credentials(),
-        AwsConfig::clientConfig(),
-        Aws::Client::AWSAuthV4Signer::PayloadSigningPolicy::Never,
-        false
-    );
+    auto& client = getS3Client();
     return client.GeneratePresignedUrl(bucket, key, Aws::Http::HttpMethod::HTTP_GET, 3600);
 }
 
@@ -35,12 +52,7 @@ std::string getSignedUrl(const std::string& key){
  */
 std::string putObject(const std::string& key, const drogon::HttpFile& file){
     const auto bucket = requireBucket();
-    Aws::S3::S3Client client(
-        AwsConfig::credentials(),
-        AwsConfig::clientConfig(),
-        Aws::Client::AWSAuthV4Signer::PayloadSigningPolicy::Never,
-        false
-    );
+    auto& client = getS3Client();
     Aws::S3::Model::PutObjectRequest request;
     request.SetBucket(bucket);
     request.SetKey(key);
@@ -63,12 +75,7 @@ std::string putObject(const std::string& key, const drogon::HttpFile& file){
 bool deleteObject(const std::string& key){
     const auto bucket = requireBucket();
     Aws::S3::Model::DeleteObjectRequest request;
-    Aws::S3::S3Client client(
-        AwsConfig::credentials(),
-        AwsConfig::clientConfig(),
-        Aws::Client::AWSAuthV4Signer::PayloadSigningPolicy::Never,
-        false
-    );
+    auto& client = getS3Client();
     request.SetBucket(bucket);
     request.SetKey(key);
 
@@ -116,4 +123,10 @@ std::string urlToKey(const std::string& url) {
     // CASE 3: custom domain or CDN
     // cdn.example.com/key
     return path;
+}
+
+void shutdownS3Client()
+{
+    std::lock_guard<std::mutex> lock(gS3ClientMutex);
+    gS3Client.reset();
 }
