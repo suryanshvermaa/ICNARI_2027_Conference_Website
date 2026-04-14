@@ -59,7 +59,7 @@ const Header = () => {
         {/* Event Date */}
         <MotionDiv className="text-lg sm:text-xl font-semibold mb-6" variants={itemVariants}>
           <p className="bg-white/95 inline-block py-2 px-4 rounded-md text-gray-900 m-1.5 font-bold dark:bg-slate-800/80 dark:text-slate-50">
-            Event Date: 6<sup>th</sup>, 7<sup>th</sup> & 8<sup>th</sup> of March, 2027
+            Event Date: 5<sup>th</sup>, 6<sup>th</sup> & 7<sup>th</sup> of March, 2027
           </p>
         </MotionDiv>
 

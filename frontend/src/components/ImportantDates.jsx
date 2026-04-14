@@ -1,42 +1,42 @@
 const dates = [
-  {
-    title: "Paper Submission Start Date",
-    date: "June 16",
-    description: "Start date to submit research papers for review.",
-  },
+  // {
+  //   title: "Paper Submission Start Date",
+  //   date: "June 16",
+  //   description: "Start date to submit research papers for review.",
+  // },
     {
       title: "Paper Submission Deadline",
-      date: "December 18 (extended)",
+      date: "October 25, 2026",
       description: "Final date to submit research papers for review.",
     },
     {
       title: "Notification of Acceptance",
-      date: "25 January, 2027",
+      date: "November 22, 2026",
       description: "Authors will receive acceptance or rejection notifications.",
     },
     {
       title: "Early Bird Registration",
-      date: "15 February, 2027",
+      date: "January 10, 2027",
       description: "Deadline for early bird registration for the conference.",
     },
     {
       title: "Camera-Ready Submission",
-      date: "20 February, 2027",
+      date: "January 24, 2027",
       description: "Final versions of accepted papers must be submitted.",
     },
     {
       title: "Last Date of Registration",
-      date: "25 February, 2027",
+      date: "January 31, 2027",
       description: "Final date for all participants to register for the conference.",
     },
     {
       title: "Conference Start Date",
-      date: "March 6, 2027",
+      date: "March 5, 2027",
       description: "The official start of the International Conference.",
     },
     {
       title: "Conference End Date",
-      date: "March 8, 2027",
+      date: "March 7, 2027",
       description: "The final day of the conference.",
     },
   ];
