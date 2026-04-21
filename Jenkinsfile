@@ -27,14 +27,18 @@ pipeline{
                 echo "copying env file..."
                 sh '''
                     set -e
-                    ENV_FILE="/home/suryansh/env/icnari27-site/app.env"
-                    if [ ! -f "$ENV_FILE" ]; then
-                      echo "Missing env file at: $ENV_FILE"
+                    APP_ENV_FILE="/home/suryansh/env/icnari27-site/app.env"
+                    DB_ENV_FILE="/home/suryansh/env/icnari27-site/db.env"
+                    S3_ENV_FILE="/home/suryansh/env/icnari27-site/s3.env"
+                    if [ ! -f "$APP_ENV_FILE" ]; then
+                      echo "Missing env file at: $APP_ENV_FILE"
                       echo "Directory listing (best-effort):"
                       ls -la "/home/suryansh/env/icnari27-site" || true
                       exit 1
                     fi
-                    cp "$ENV_FILE" "$WORKSPACE/backend/.env"
+                    cp "$APP_ENV_FILE" "$WORKSPACE/backend/.env"
+                    cp "$DB_ENV_FILE" "$WORKSPACE/backend/db.env"
+                    cp "$S3_ENV_FILE" "$WORKSPACE/backend/s3.env"
                 '''
                 echo "copying env file successful."
             }
@@ -54,6 +58,38 @@ pipeline{
                     cp "$CONFIG_FILE" "$WORKSPACE/backend/config/config.json"
                 '''
                 echo "copying config file successful."
+            }
+        }
+        stage("deploying minio"){
+            steps{
+                dir('backend'){
+                    echo "deploying minio..."
+                    sh '''
+                        set -e
+                        if ! docker ps --format '{{.Names}}' | grep -q "icnari27_minio_container"; then
+                          docker compose -f docker-compose.prod.s3.yml up -d
+                        else
+                          echo "minio is already running."
+                        fi
+                    '''
+                    echo "minio deployed successfully."
+                }
+            }
+        }
+        stage("deploying postgres"){
+            steps{
+                dir('backend'){
+                    echo "deploying postgres..."
+                    sh '''
+                        set -e
+                        if ! docker ps --format '{{.Names}}' | grep -q "icnari27_db_container"; then
+                          docker compose -f docker-compose.prod.db.yml up -d
+                        else
+                          echo "postgres is already running."
+                        fi
+                    '''
+                    echo "postgres deployed successfully."
+                }
             }
         }
         stage("deploying"){
