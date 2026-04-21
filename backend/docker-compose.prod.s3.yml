@@ -9,7 +9,7 @@ services:
       # Map the Console port (for the web UI)
       - "9001:9001"
     volumes:
-      - ./minio_data:/data
+      - ~/minio_data:/data
     # The command to start the MinIO server and enable the console
     command: server /data --console-address ":9001"
     networks:
