@@ -36,6 +36,18 @@ pipeline{
                       ls -la "/home/suryansh/env/icnari27-site" || true
                       exit 1
                     fi
+                    if [ ! -f "$DB_ENV_FILE" ]; then
+                      echo "Missing env file at: $DB_ENV_FILE"
+                      echo "Directory listing (best-effort):"
+                      ls -la "/home/suryansh/env/icnari27-site" || true
+                      exit 1
+                    fi
+                    if [ ! -f "$S3_ENV_FILE" ]; then
+                      echo "Missing env file at: $S3_ENV_FILE"
+                      echo "Directory listing (best-effort):"
+                      ls -la "/home/suryansh/env/icnari27-site" || true
+                      exit 1
+                    fi
                     cp "$APP_ENV_FILE" "$WORKSPACE/backend/.env"
                     cp "$DB_ENV_FILE" "$WORKSPACE/backend/db.env"
                     cp "$S3_ENV_FILE" "$WORKSPACE/backend/s3.env"
