@@ -30,6 +30,7 @@ pipeline{
                     APP_ENV_FILE="/home/suryansh/env/icnari27-site/app.env"
                     DB_ENV_FILE="/home/suryansh/env/icnari27-site/db.env"
                     S3_ENV_FILE="/home/suryansh/env/icnari27-site/s3.env"
+                    BACKUP_ENV_FILE="/home/suryansh/env/icnari27-site/backup.env"
                     if [ ! -f "$APP_ENV_FILE" ]; then
                       echo "Missing env file at: $APP_ENV_FILE"
                       echo "Directory listing (best-effort):"
@@ -51,6 +52,7 @@ pipeline{
                     cp "$APP_ENV_FILE" "$WORKSPACE/backend/.env"
                     cp "$DB_ENV_FILE" "$WORKSPACE/backend/db.env"
                     cp "$S3_ENV_FILE" "$WORKSPACE/backend/s3.env"
+                    cp "$BACKUP_ENV_FILE" "$WORKSPACE/backup/.env"
                 '''
                 echo "copying env file successful."
             }
@@ -114,6 +116,19 @@ pipeline{
                         docker compose -f docker-compose.prod.yml up -d --build --force-recreate
                     '''
                     echo "application deployed successfully."
+                }
+            }
+        }
+        stage("deploying backup"){
+            steps{
+                dir('backup'){
+                    echo "deploying backup container..."
+                    sh '''
+                        set -e
+                        docker rm -f backup-service 2>/dev/null || true
+                        docker compose up -d --build --force-recreate
+                    '''
+                    echo "backup container deployed successfully."
                 }
             }
         }
