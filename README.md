@@ -1,40 +1,45 @@
-# 🎓 ICNARI 2027 — NIT Patna Conference Website
+# 🎓 ICNARI 2027 — Conference Website (NIT Patna)
 
-Conference website + admin dashboard for **ICNARI 2027** (NIT Patna: Patna + Bihta campus).
+Conference website + admin dashboard for **ICNARI 2027**.
 
-This repository is a two-part app:
+![ICNARI 2027 landing page screenshot](assets/LandingHomePage.png)
 
-- **Frontend**: React + Vite (Chakra UI + Tailwind)
-- **Backend**: C++ API using Drogon
-- **Dependencies**: PostgreSQL (database) + MinIO (S3-compatible object storage)
+## ✨ What’s in this repo
 
-## Repository layout
+- 🖥️ **Frontend**: React + Vite + Tailwind (public site + admin dashboard)
+- ⚙️ **Backend**: C++ API built with Drogon
+- 🗄️ **Data**: PostgreSQL
+- 🪣 **Storage**: MinIO (S3-compatible)
+- 🧰 **Ops**: Docker Compose, Nginx reverse-proxy configs, Jenkins pipeline, backup container
+
+## 🗂️ Repository structure
 
 - `frontend/` — Vite + React app
-- `backend/` — Drogon C++ API, SQL seed files, docker compose for local services
+- `backend/` — Drogon API, OpenAPI spec, SQL init scripts, local/prod Docker Compose
+- `backup/` — containerized scheduled backups (Postgres dump + MinIO mirroring)
+- `assets/` — README images
+- `*.nginx.conf` — Nginx reverse proxy configs for API, DB, and MinIO
+- `Jenkinsfile` — CI/CD pipeline used for deployment
 
-## Quick start (local development)
+## 🧑‍💻 Local development
 
-### 1) Start Postgres + MinIO
-
-From the backend directory:
+### 1) 🧱 Start PostgreSQL + MinIO
 
 ```bash
 cd backend
 docker compose up -d
 ```
 
-This provisions:
+Services (from `backend/docker-compose.yml`):
 
-- PostgreSQL on `localhost:5432` (db: `icnari_conference_db`, user: `postgres`, pass: `postgres`)
-- MinIO S3 API on `http://localhost:9000`
-- MinIO Console on `http://localhost:9001` (dev credentials: `suryansh` / `suryansh`)
+- 🐘 PostgreSQL: `localhost:5432`
+- 🧊 MinIO S3 API: `http://localhost:9000`
+- 🖱️ MinIO Console: `http://localhost:9001`
+Database initialization:
 
-The SQL files in `backend/sql/` are mounted into the Postgres init folder.
+- 🧾 `backend/sql/` is mounted into Postgres init (`/docker-entrypoint-initdb.d`).
 
-### 2) Configure the backend
-
-The backend reads environment variables from a local `.env` file:
+### 2) 🔐 Configure backend env
 
 ```bash
 cd backend
@@ -43,13 +48,13 @@ cp .env.example .env
 
 Common variables (see `backend/.env.example`):
 
-- `PORT` (defaults to `3000`)
+- `PORT` (default `3000`)
 - `JWT_SECRET`
 - `S3_ENDPOINT`, `S3_REGION`, `S3_ACCESS_KEY`, `S3_SECRET_KEY`, `S3_BUCKET`, `S3_USE_SSL`
 
-Database connection settings are in `backend/config/config.json`.
+DB connection settings live in `backend/config/config.json`.
 
-### 3) Build + run the backend
+### 3) 🧱 Build + run the backend (native)
 
 Prerequisites:
 
@@ -72,23 +77,21 @@ cmake --preset conan-release
 cmake --build --preset conan-release
 ```
 
-Run:
+Run (important: run from inside `backend/` so `./config/config.json` resolves):
 
 ```bash
 cd backend
 ./build/ICNARI_Conference_Backend
 ```
 
-Important: the server loads `./config/config.json` via a relative path, so run it from inside `backend/`.
-
-Optional: create an admin user (after building):
+Optional: 👤 create an admin user (after building):
 
 ```bash
 cd backend
 ./build/createAdmin ./config/config.json
 ```
 
-### 4) Configure + run the frontend
+### 4) 🧩 Configure + run the frontend
 
 Prerequisites:
 
@@ -102,7 +105,7 @@ cd frontend
 cp .env.example .env
 ```
 
-`frontend/.env.example` defines:
+Default:
 
 - `VITE_API_URL=http://localhost:3000`
 
@@ -116,31 +119,78 @@ pnpm dev
 
 Vite typically serves at `http://localhost:5173`.
 
-Note: the frontend currently calls endpoints like `${VITE_API_URL}/...` (for example, `.../contact`, `.../photogallery/...`). The C++ backend defines versioned routes under `/api/v1/...` (see API section below). If you see 404s, align the frontend endpoint paths with the backend routes (or update `VITE_API_URL` to include the correct base path if you add a proxy).
+## 📡 API
 
-## API documentation
+- 📄 OpenAPI spec: `backend/routes/openapi.yaml`
+- ❤️ Health: `GET /health`
+- 🧭 Versioned base path: `/api/v1/...`
 
-- OpenAPI spec: `backend/routes/openapi.yaml`
-- Health check: `GET /health`
-- Versioned routes: `/api/v1/...` (auth/users/notifications/gallery)
+OpenAPI tags include Auth, Users, Notifications, Gallery, Speaker, Committee, and Contact.
 
-## Docker (backend container)
+## 🚀 Production deployment (Docker + Nginx + Jenkins)
 
-The backend includes a production compose file:
+### 🐳 Backend container
+
+The backend container is built/run via:
 
 ```bash
 cd backend
-docker compose -f docker-compose.prod.yml up --build
+docker compose -f docker-compose.prod.yml up -d --build
 ```
 
-Notes:
+Important port mapping:
 
-- The container maps `3000:3000`; ensure `PORT=3000` in `backend/.env`.
-- `backend/docker-compose.prod.yml` mounts `backend/config/` into `/app/config/` (read-only).
-- The `backend/Dockerfile` declares `EXPOSE 8080`, but the app listens on `PORT` (default `3000`).
+- 🔌 `backend/docker-compose.prod.yml` maps host `4000` to container `3000` (`4000:3000`).
+- 🔁 The Nginx API config (`icnari27.nginx.conf`) proxies to `127.0.0.1:4000`.
 
-## Troubleshooting
+### 🧱 MinIO + Postgres containers
 
-- **Backend can’t find config**: run the binary from `backend/` so `./config/config.json` resolves.
-- **S3 errors**: ensure `S3_BUCKET` is set; MinIO must be running.
-- **DB connection failures**: confirm Postgres is running and `backend/config/config.json` matches your local DB.
+Separate prod compose files exist for infrastructure:
+
+- `backend/docker-compose.prod.s3.yml`
+- `backend/docker-compose.prod.db.yml`
+
+### 🌐 Reverse proxy configs
+
+Nginx configs in the repo root proxy requests to local ports:
+
+- `icnari27.nginx.conf` → API (`127.0.0.1:4000`)
+- `s3.nginx.conf` → MinIO S3 (`127.0.0.1:9000`)
+- `s3.ui.nginx.conf` → MinIO Console (`127.0.0.1:9001`)
+- `postgres.nginx.conf` → Postgres (`127.0.0.1:5432`)
+
+### 🧪 Jenkins pipeline
+
+Deployment automation is defined in `Jenkinsfile`:
+
+- 🧹 Cleans workspace, clones repo
+- 📦 Copies env/config from a host directory into:
+	- `backend/.env`, `backend/db.env`, `backend/s3.env`
+	- `backend/config/config.json`
+	- `backup/.env`
+- 🧊 Brings up MinIO + Postgres (if not running)
+- 🔨 Rebuilds and redeploys the app container
+- ♻️ Rebuilds and redeploys the backup container
+
+![Jenkins pipeline screenshot](assets/JenkinsPipeline.png)
+
+## 🧯 Backups
+
+The `backup/` service runs a cron inside a container (see `backup/start.sh`). Current schedule is:
+
+- 🕒 Daily at `15:02` (container TZ: `Asia/Kolkata`)
+
+What it does (see `backup/backup.sh`):
+
+- 🗜️ Creates a gzip-compressed `pg_dump`
+- ☁️ Uploads it to `s3://$S3_BUCKET/postgres/` (optionally using `S3_ENDPOINT`)
+- 🧹 Keeps only the latest 5 dumps locally and in S3
+- 🪣 Mirrors a MinIO bucket to S3 using the MinIO client (`mc mirror`)
+
+Env template: `backup/.env.example`.
+
+## 🧯 Troubleshooting
+
+- 🧩 Backend can’t find config: run the binary from `backend/` (it loads `./config/config.json` via relative path).
+- 🧊 S3 errors in dev: ensure MinIO is running and `S3_BUCKET` is set in `backend/.env`.
+- 🔗 Frontend 404s: confirm `VITE_API_URL` and that the backend routes are under `/api/v1/...`.
