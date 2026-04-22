@@ -1,0 +1,15 @@
+services:
+  backup:
+    build: .
+    container_name: backup-service
+    volumes:
+      - ./data:/data
+    env_file:
+      - .env
+    environment:
+      - TZ=Asia/Kolkata
+    networks:
+      - conference_network
+networks:
+  conference_network:
+    driver: bridge
