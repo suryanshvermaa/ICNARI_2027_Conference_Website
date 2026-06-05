@@ -28,7 +28,7 @@ void committee::createCommitteeMember(const HttpRequestPtr& req, std::function<v
                 throw AppError("Missing required fields: name, college, committee", k400BadRequest);
             member.name=(*reqBody)["name"].asString();
             member.college=(*reqBody)["college"].asString();
-            if(CommitteeRepository::isValidCommittee((*reqBody)["committee"].asString()))
+            if(!CommitteeRepository::isValidCommittee((*reqBody)["committee"].asString()))
                 throw AppError("Invalid committee name", k400BadRequest);
             member.committee=(*reqBody)["committee"].asString();
             if(reqBody->isMember("specialization")) member.specialization=(*reqBody)["specialization"].asString();
@@ -50,7 +50,7 @@ void committee::createCommitteeMember(const HttpRequestPtr& req, std::function<v
                 throw AppError("Missing required fields: name, college, committee", k400BadRequest);
             member.name = nameIt->second;
             member.college = collegeIt->second;
-            if(CommitteeRepository::isValidCommittee(committeeIt->second))
+            if(!CommitteeRepository::isValidCommittee(committeeIt->second))
                 throw AppError("Invalid committee name", k400BadRequest);
             member.committee = committeeIt->second;
 
