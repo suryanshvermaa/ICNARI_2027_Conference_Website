@@ -7,8 +7,8 @@ const RunningText = () => {
 
   const message = (
     <>
-     The last date of registration for ICNARI 2027 has been extended till 25th February 2027. <span className="highlight">International Conference on Next-Generation Adaptive Research and Innovations 2027 </span>
-      on <span className="date">6<sup>th</sup>, 7<sup>th</sup> & 8<sup>th</sup> March ,2027</span> at NIT Patna! Engage with top researchers, innovators, and industry leaders. Don't miss this opportunity! 🚀📚
+     <span className="highlight">International Conference on Next-Generation Adaptive Research and Innovations 2027 </span>
+      on <span className="date">5<sup>th</sup>, 6<sup>th</sup> & 7<sup>th</sup> March ,2027</span> at NIT Patna! Engage with top researchers, innovators, and industry leaders. Don't miss this opportunity! 🚀📚
     </>
   );
 

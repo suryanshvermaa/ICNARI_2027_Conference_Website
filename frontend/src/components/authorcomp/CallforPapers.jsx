@@ -87,7 +87,7 @@ const CallforPapers = () => {
         <p className='text-lg text-indigo-700 dark:text-indigo-200 font-semibold'>Prospective authors are invited to submit original unpublished work that is not currently under consideration for publication elsewhere via the various track mentioned below.</p>
     </div>
     <div className='w-full h-30 flex justify-center items-center text-zinc-600 dark:text-slate-300 underline'>
-        <h1 className='font-mediums md:text-5xl sm:text-5xl text-3xl cursor-pointer' onClick={()=>window.open("https://drive.google.com/file/d/1Cr7ZAoTga7h14BRDZamnu93SHHRUsYKz/view?usp=drivesdk","_blank")}>Link for CFP Brochure</h1>
+        <h1 className='font-mediums md:text-5xl sm:text-5xl text-3xl cursor-pointer' onClick={()=>window.open("https://drive.google.com/file/d/1i73zR6Ynj5DkSEgFSGcmfr2ELV_9VCRK/view?usp=sharing","_blank")}>Link for CFP Brochure</h1>
     </div>
    
     <div className='w-full mt-6 md:px-20 sm:px-12 px-6'>
