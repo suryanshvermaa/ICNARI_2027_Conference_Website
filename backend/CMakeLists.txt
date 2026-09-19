@@ -27,6 +27,7 @@ add_executable(ICNARI_Conference_Backend
     ./src/models/Committee.cc
     ./src/models/Contacts.cc
     ./src/models/Speakers.cc
+    ./src/models/StudentCommittee.cc
 
     # filters
     ./src/filters/AuthFilter.cc
@@ -44,6 +45,7 @@ add_executable(ICNARI_Conference_Backend
     ./src/repositories/contact/contact.repository.cc
     ./src/repositories/committee/committee.repository.cc
     ./src/repositories/speakers/speaker.repository.cc
+    ./src/repositories/student_committee/student_committee.repository.cc
 
     # main
     ./src/main.cc)
