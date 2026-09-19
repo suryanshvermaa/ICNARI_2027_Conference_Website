@@ -21,7 +21,7 @@ void StudentCommitteeRepository::updateCommitteeMember(int id,const studentCommi
     mapper.update(committeeMember);
 }
 
-vector<studentCommitteeMemberStruct> StudentCommitteeRepository::getCommitteeMembers(int page=1,int limit=10) {
+vector<studentCommitteeMemberStruct> StudentCommitteeRepository::getCommitteeMembers(int page,int limit) {
     Mapper<StudentCommittee> mapper(Database::getClient());
     auto members = mapper.offset((page-1)*limit).limit(limit).orderBy(StudentCommittee::Cols::_priority, SortOrder::ASC).findAll();
     vector<studentCommitteeMemberStruct> result;
