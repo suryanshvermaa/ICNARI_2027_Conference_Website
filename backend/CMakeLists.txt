@@ -19,6 +19,7 @@ add_executable(ICNARI_Conference_Backend
     ./src/controllers/committee/api_v1_committee.cc
     ./src/controllers/contact/api_v1_contact.cc
     ./src/controllers/speaker/api_v1_speaker.cc
+    ./src/controllers/student_committee/api_v1_student_committee.cc
 
     # # models
     ./src/models/Users.cc

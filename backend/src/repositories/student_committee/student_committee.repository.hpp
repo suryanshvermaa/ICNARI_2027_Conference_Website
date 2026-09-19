@@ -18,7 +18,7 @@ struct studentCommitteeMemberStruct{
 };
 
 namespace StudentCommitteeRepository {
-    vector<studentCommitteeMemberStruct> getCommitteeMembers(const std::string& committee,int page,int limit);
+    vector<studentCommitteeMemberStruct> getCommitteeMembers(int page=1,int limit=10);
     int createCommitteeMember(const studentCommitteeMemberStruct& member);
     void updateCommitteeMember(int id,const studentCommitteeMemberStruct& member);
     bool deleteCommitteeMember(int id);

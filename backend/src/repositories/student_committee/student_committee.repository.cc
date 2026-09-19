@@ -13,7 +13,7 @@ int StudentCommitteeRepository::createCommitteeMember(const studentCommitteeMemb
 
 void StudentCommitteeRepository::updateCommitteeMember(int id,const studentCommitteeMemberStruct& member) {
     Mapper<StudentCommittee> mapper(Database::getClient());
-    auto committeeMember = mapper.findByPrimaryKey(member.id);
+    auto committeeMember = mapper.findByPrimaryKey(id);
     if(member.name!="") committeeMember.setName(member.name);
     if(member.branch!="") committeeMember.setBranch(member.branch);
     if(member.profile_picture_object_key!="") committeeMember.setProfilePictureObjectKey(member.profile_picture_object_key);
