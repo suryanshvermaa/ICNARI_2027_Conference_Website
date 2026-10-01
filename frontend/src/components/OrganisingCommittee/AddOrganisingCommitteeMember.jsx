@@ -11,8 +11,10 @@ const AddOrganisingCommitteeMember = () => {
     'Organizing Chair',
     'Program Chair',
     'Program Secretary',
+    'Program Joint-Secretary', // added
     'Program Co-Chair',
     'Program Coordinators',
+    'Program Co-Coordinators', // added
     'Advisory Committee',
     'Program Steering Committee',
     'Publication Chairs',

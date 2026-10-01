@@ -38,9 +38,11 @@ const OrganisingCom = () => {
     'Honorary Chairs (Chairman)',
     'Organizing Chair',
     'Program Chair',
-    'Program Co-Chair',
     'Program Secretary',
+    'Program Joint-Secretary', // added
+    'Program Co-Chair',
     'Program Coordinators',
+    'Program Co-Coordinators', // added
     'Advisory Committee',
     'Program Steering Committee',
     'Publication Chairs',
@@ -67,6 +69,8 @@ const OrganisingCom = () => {
     [roles[12]]: [],
     [roles[13]]: [],
     [roles[14]]: [],
+    [roles[15]]: [],
+    [roles[16]]: [],
   });
 
   const extractRoleAndDescription = (member) => {

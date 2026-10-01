@@ -211,7 +211,7 @@ void committee::updateCommitteeMember(const HttpRequestPtr& req, std::function<v
             if(reqBody->isMember("name")) member.name=(*reqBody)["name"].asString();
             if(reqBody->isMember("college")) member.college=(*reqBody)["college"].asString();
             if(reqBody->isMember("committee")){
-                if(CommitteeRepository::isValidCommittee((*reqBody)["committee"].asString()))
+                if(!CommitteeRepository::isValidCommittee((*reqBody)["committee"].asString()))
                     throw AppError("Invalid committee name", k400BadRequest);
                 member.committee=(*reqBody)["committee"].asString();
             }
@@ -234,7 +234,7 @@ void committee::updateCommitteeMember(const HttpRequestPtr& req, std::function<v
         const auto committeeIt = params.find("committee");
         if(committeeIt!=params.end() && !committeeIt->second.empty())
         {
-            if(CommitteeRepository::isValidCommittee(committeeIt->second))
+            if(!CommitteeRepository::isValidCommittee(committeeIt->second))
                 throw AppError("Invalid committee name", k400BadRequest);
             member.committee = committeeIt->second;
         }
