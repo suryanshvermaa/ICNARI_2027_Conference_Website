@@ -10,5 +10,9 @@
       "passwd": "postgres",
       "connection_number": 1
     }
-  ]
+  ],
+  "app": {
+    "client_max_body_size": "20M",
+    "max_memory_body_size": "2M"
+  }
 }
