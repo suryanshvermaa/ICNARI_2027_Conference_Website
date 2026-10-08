@@ -6,12 +6,12 @@ const dates = [
   // },
     {
       title: "Paper Submission Deadline",
-      date: "October 25, 2026",
+      date: "December 7, 2026",
       description: "Final date to submit research papers for review.",
     },
     {
       title: "Notification of Acceptance",
-      date: "November 22, 2026",
+      date: "December 28, 2026",
       description: "Authors will receive acceptance or rejection notifications.",
     },
     {

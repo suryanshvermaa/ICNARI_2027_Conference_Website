@@ -6,8 +6,8 @@ const Papersub = () => {
         <p className="text-zinc-700 dark:text-slate-200 text-lg mb-6">How and where to submit your research paper.</p>
         <ul className="list-disc pl-6 text-zinc-700 dark:text-slate-200 text-lg">
           {/* <li><strong className="font-semibold">Submission Starts:</strong> June 16</li> */}
-          <li><strong className="font-semibold">Paper Submission Deadline:</strong><span className='underline bg-amber-200 px-1 rounded dark:bg-amber-500/20 dark:text-amber-100'>October 25, 2026</span></li>
-          <li><strong className="font-semibold">Notification Acceptance:</strong> 25 January, 2027</li>
+          <li><strong className="font-semibold">Paper Submission Deadline:</strong><span className='underline bg-amber-200 px-1 rounded dark:bg-amber-500/20 dark:text-amber-100'>December 7, 2026</span></li>
+          <li><strong className="font-semibold">Notification Acceptance:</strong> 28 December, 2026</li>
           <li><strong className="font-semibold">Date of Conference:</strong>March 5th - 7th, 2027</li>
           <li><strong className="font-semibold">Early Bird Registration:</strong>10 January, 2027</li>
           <li><strong className="font-semibold">Camera-Ready Submission:</strong>24 January, 2027</li>
