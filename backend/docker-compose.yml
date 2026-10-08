@@ -1,5 +1,22 @@
-version: '3.8'
 services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: icnari27_app_container
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env
+    working_dir: /app
+    volumes:
+      - ./config/:/app/config/:ro
+    depends_on:
+      - db
+      - s3
+    networks:
+      - conference_network
+
   db:
     image: postgres:16
     environment:
@@ -14,7 +31,7 @@ services:
     networks:
       - conference_network
   s3:
-    image: quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z
+    image: soldevelo/minio:2026.7.17
     environment:
       - MINIO_ROOT_USER=suryansh
       - MINIO_ROOT_PASSWORD=suryansh
@@ -24,9 +41,14 @@ services:
       # Map the Console port (for the web UI)
       - "9001:9001"
     volumes:
-      - ./minio_data:/data
+      - ./minio_data:/bitnami/minio/data
     # The command to start the MinIO server and enable the console
-    command: server /data --console-address ":9001"
+    
+    command:
+      - server
+      - /bitnami/minio/data
+      - --console-address
+      - ":9001"
     networks:
       - conference_network
 

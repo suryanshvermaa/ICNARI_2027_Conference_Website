@@ -1,6 +1,6 @@
 services:
   s3:
-    image: quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z
+    image: soldevelo/minio:2026.7.17
     env_file:
       - s3.env
     ports:
@@ -9,9 +9,14 @@ services:
       # Map the Console port (for the web UI)
       - "9001:9001"
     volumes:
-      - ~/minio_data:/data
+      - ~/minio_data:/bitnami/minio/data
     # The command to start the MinIO server and enable the console
-    command: server /data --console-address ":9001"
+    
+    command:
+      - server
+      - /bitnami/minio/data
+      - --console-address
+      - ":9001"
     networks:
       - conference_network
   
